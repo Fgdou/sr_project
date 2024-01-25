@@ -2,3 +2,6 @@
 
 ## Members
 - [Fabien GOARDOU](https://fabiengoardou.fr/)
+
+## Design
+See the [design file](./design/design.md)

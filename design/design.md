@@ -13,6 +13,8 @@ The architecture is frontend - backend. The project can be run with a `docker-co
 The entire project will be written in **Rust**. 
 The idea is to create a performant web-app, that can handle a large amount of users. It will be usefull espacially in the server-side.
 
+The power of using the same language, means that we can share the objects between the fontend and backend.
+
 ```mermaid
 ---
 title: Interactions
