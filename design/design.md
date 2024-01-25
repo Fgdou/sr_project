@@ -33,6 +33,9 @@ flowchart TB
 subgraph Docker
 Nginx[[Nginx :80]] -- / --> Frontend
 Nginx -- /websocket --> Backend
+
+Frontend -.-> Objects
+Backend -.-> Objects
 end
 
 Client --> Docker
@@ -44,6 +47,9 @@ It will handle all the game logic. The position and the direction is stored here
 
 ### Frontend
 The frontend will draw the players sent by the server. It will also send every keys sent by the user.
+
+## Dependencies
+- webassembly : communicate between the front and back
 
 # Sprints
 1. basic functionnalities
