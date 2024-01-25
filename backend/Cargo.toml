@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-futures-util = {version="0.3.30", features = ["sink"]
 objects = {path = "../objects"}
-tokio = { version = "1.35.1", features = ["full"] }
-tokio-websockets = {version = "0.5.1", features = ["server", "openssl"]}
+serde-binary = "0.5.0"
+websocket = "0.27.0"
+

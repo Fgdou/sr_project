@@ -1,21 +1,48 @@
-use tokio::net::TcpListener;
-use tokio_websockets::{Error, ServerBuilder};
-use futures_util::{SinkExt, StreamExt};
+use std::thread;
+use objects::{MessageClient, MessageServer};
+use serde_binary::binary_stream::Endian;
+use websocket::sync::Server;
+use websocket::OwnedMessage;
 
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-    println!("Hello, world!");
 
-    let listener = TcpListener::bind("0.0.0.0:8080").await?;
-    println!("Websocket server started on ws://0.0.0.0:8080");
+fn main() {
+    let server = Server::bind("0.0.0.0:8080").unwrap();
 
-    let (conn, _) = listener.accept().await?;
-    let mut server = ServerBuilder::new().accept(conn).await?;
+    for request in server.filter_map(Result::ok) {
+        thread::spawn(|| {
+            if !request.protocols().contains(&"rust-websocket".to_string()) {
+				request.reject().unwrap();
+				return;
+			}
 
-    while let Some(Ok(item)) = server.next().await {
-        println!("Received: {item:?}");
-        server.send(item).await?;
+            let mut client = request.use_protocol("rust-websocket").accept().unwrap();
+            let ip = client.peer_addr().unwrap();
+
+            println!("Connection from {}", ip);
+
+            let (mut receiver, mut sender) = client.split().unwrap();
+
+            for message in receiver.incoming_messages() {
+                let message = message.unwrap();
+
+                match message {
+                    OwnedMessage::Close(_) => {
+                        let message = OwnedMessage::Close(None);
+                        sender.send_message(&message).unwrap();
+                        println!("Client {} disconnected", ip);
+                        return;
+                    }
+                    OwnedMessage::Ping(ping) => {
+                        let message = OwnedMessage::Pong(ping);
+                        sender.send_message(&message).unwrap();
+                    }
+                    OwnedMessage::Binary(value) => {
+                        let message: MessageClient = serde_binary::from_vec(value, Endian::Big).unwrap();
+                        println!("Message: {:?}", &message);
+                    }
+                    _ => ()
+                }
+            }
+        });
     }
-
-    Ok(())
 }
