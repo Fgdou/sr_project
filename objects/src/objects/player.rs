@@ -1,11 +1,11 @@
-use cgmath::Vector2;
+use serde::{Deserialize, Serialize};
 
-use crate::Direction;
+use crate::{Direction, Vector2};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
     pub id: i32,
     pub username: String,
-    pub positions: Vec<Vector2<i32>>,
+    pub positions: Vec<Vector2>,
     pub direction: Direction,
 }
