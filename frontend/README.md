@@ -1,3 +1,11 @@
+# Installation
+Requirements :
+- rust
+
+```sh
+cargo install wasm-pack
+```
+
 # Compile
 ```sh
 wasm-pack build --target web
