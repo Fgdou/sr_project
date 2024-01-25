@@ -49,7 +49,8 @@ It will handle all the game logic. The position and the direction is stored here
 The frontend will draw the players sent by the server. It will also send every keys sent by the user.
 
 ## Dependencies
-- webassembly : communicate between the front and back
+- webassembly : run the rust code in the browser and interact with the page
+- websocket : communicate between the front and back
 
 # Sprints
 1. basic functionnalities
