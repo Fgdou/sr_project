@@ -1,9 +1,11 @@
 use std::thread;
-use objects::{MessageClient, MessageServer};
-use serde_binary::binary_stream::Endian;
 use websocket::sync::Server;
 use websocket::OwnedMessage;
+use serde_json;
 
+use crate::objects::MessageClient;
+
+mod objects;
 
 fn main() {
     let server = Server::bind("0.0.0.0:8080").unwrap();
@@ -36,8 +38,8 @@ fn main() {
                         let message = OwnedMessage::Pong(ping);
                         sender.send_message(&message).unwrap();
                     }
-                    OwnedMessage::Binary(value) => {
-                        let message: MessageClient = serde_binary::from_vec(value, Endian::Big).unwrap();
+                    OwnedMessage::Text(value) => {
+                        let message: MessageClient = serde_json::from_str(value.as_str()).unwrap();
                         println!("Message: {:?}", &message);
                     }
                     _ => ()

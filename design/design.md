@@ -10,10 +10,7 @@ The idea is to create a snake game, but multiplayer. The idea is to copy the cla
 ## Architecture
 The architecture is frontend - backend. The project can be run with a `docker-compose` file that runs everything. The pipeline allows the build and test of the project at every commit, and deploy the main branch.
 
-The entire project will be written in **Rust**. 
-The idea is to create a performant web-app, that can handle a large amount of users. It will be usefull espacially in the server-side.
-
-The power of using the same language, means that we can share the objects between the fontend and backend.
+The backend will be written in Rust, and rhe frontend in typescript. Rust will be usefull to have a performant backend, and typscript will be the easiest for frontend development but will still allow for type checking.
 
 ```mermaid
 ---
