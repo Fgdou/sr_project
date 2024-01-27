@@ -1,4 +1,5 @@
 import {MessageClient} from "../../backend/bindings/MessageClient"
+import {MessageServer} from "../../backend/bindings/MessageServer"
 
 console.log("Hello ts")
 
@@ -14,5 +15,6 @@ socket.addEventListener("open", (event) => {
 
 // Listen for messages
 socket.addEventListener("message", (event) => {
-console.log("Message from server ", event.data);
+  let message: MessageServer = JSON.parse(event.data);
+  console.log("Message from server ", message);
 });

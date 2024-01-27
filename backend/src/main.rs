@@ -1,47 +1,53 @@
-use std::thread;
+use std::{sync::{Arc, Mutex}, thread, time::Duration};
+use client::Client;
 use websocket::sync::Server;
-use websocket::OwnedMessage;
-use serde_json;
 
-use crate::objects::MessageClient;
+use crate::{game::Game, objects::Player};
 
 mod objects;
+mod client;
+mod game;
+
+fn handle_loop(game: Arc<Mutex<Game>>) {
+    loop {
+        thread::sleep(Duration::from_millis(1000));
+        game.lock().unwrap().tick();
+    }
+}
 
 fn main() {
+
+    let game = Arc::new(Mutex::new(Game::new()));
+
     let server = Server::bind("0.0.0.0:8080").unwrap();
 
     println!("Listening to 0.0.0.0:8080");
 
+    let game_copy = game.clone();
+    thread::spawn(move || handle_loop(game_copy));
+
     for request in server.filter_map(Result::ok) {
-        thread::spawn(|| {
-            let mut client = request.accept().unwrap();
+        let game = game.clone();
+        thread::spawn(move || {
+            let client = request.accept().unwrap();
             let ip = client.peer_addr().unwrap();
 
             println!("Connection from {}", ip);
 
-            let (mut receiver, mut sender) = client.split().unwrap();
+            let (mut receiver, sender) = client.split().unwrap();
+
+            let id = game.lock().unwrap().next_id();
+
+            let player = Client {
+                player: Player::new(id),
+                writer: sender
+            };
+            game.lock().unwrap().add_client(player);
 
             for message in receiver.incoming_messages() {
                 let message = message.unwrap();
 
-                match message {
-                    OwnedMessage::Close(_) => {
-                        let message = OwnedMessage::Close(None);
-                        sender.send_message(&message).unwrap();
-                        println!("Client {} disconnected", ip);
-                        return;
-                    }
-                    OwnedMessage::Ping(ping) => {
-                        let message = OwnedMessage::Pong(ping);
-                        sender.send_message(&message).unwrap();
-                    }
-                    OwnedMessage::Text(value) => {
-                        println!("Message : {}", value);
-                        let message: MessageClient = serde_json::from_str(value.as_str()).expect("Not a message");
-                        println!("Message: {:?}", &message);
-                    }
-                    _ => ()
-                }
+                game.lock().unwrap().get_client(id).unwrap().handle_message(message);
             }
         });
     }

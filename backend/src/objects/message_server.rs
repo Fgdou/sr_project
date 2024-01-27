@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
+use websocket::OwnedMessage;
 
 use super::Infos;
 #[derive(TS)]
@@ -8,4 +9,10 @@ use super::Infos;
 pub enum MessageServer {
     Error(String),
     Infos(Infos),   
+}
+
+impl Into<OwnedMessage> for &MessageServer {
+    fn into(self) -> OwnedMessage {
+        OwnedMessage::Text(serde_json::to_string(self).unwrap())
+    }
 }
