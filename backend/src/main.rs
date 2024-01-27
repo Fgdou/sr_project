@@ -10,14 +10,11 @@ mod objects;
 fn main() {
     let server = Server::bind("0.0.0.0:8080").unwrap();
 
+    println!("Listening to 0.0.0.0:8080");
+
     for request in server.filter_map(Result::ok) {
         thread::spawn(|| {
-            if !request.protocols().contains(&"rust-websocket".to_string()) {
-				request.reject().unwrap();
-				return;
-			}
-
-            let mut client = request.use_protocol("rust-websocket").accept().unwrap();
+            let mut client = request.accept().unwrap();
             let ip = client.peer_addr().unwrap();
 
             println!("Connection from {}", ip);
@@ -39,7 +36,8 @@ fn main() {
                         sender.send_message(&message).unwrap();
                     }
                     OwnedMessage::Text(value) => {
-                        let message: MessageClient = serde_json::from_str(value.as_str()).unwrap();
+                        println!("Message : {}", value);
+                        let message: MessageClient = serde_json::from_str(value.as_str()).expect("Not a message");
                         println!("Message: {:?}", &message);
                     }
                     _ => ()

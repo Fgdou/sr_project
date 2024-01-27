@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-use crate::{Direction, Vector2};
-
+use super::{Direction, Vector2};
+#[derive(TS)]
+#[ts(export)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
     pub id: i32,
