@@ -34,4 +34,7 @@ impl Game {
             }))
         })
     }
+    pub fn remove_client(&mut self, id: i32) {
+        self.players.retain(|p| p.get_id() != id);
+    }
 }

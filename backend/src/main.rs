@@ -45,9 +45,18 @@ fn main() {
             game.lock().unwrap().add_client(player);
 
             for message in receiver.incoming_messages() {
-                let message = message.unwrap();
-
-                game.lock().unwrap().get_client(id).unwrap().handle_message(message);
+                if let Ok(message) = message {
+                    let _ = game.lock().map(|mut game| {
+                        let res = game.get_client(id).map(|p| p.handle_message(message));
+                        if let Some(res) = res {
+                            if res == false {
+                                game.remove_client(id);
+                            }
+                        };
+                    });
+                } else {
+                    break;
+                }
             }
         });
     }

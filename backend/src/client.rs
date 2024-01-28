@@ -14,15 +14,15 @@ impl Client {
         self.player.id
     }
     pub fn send_message(&mut self, message: &MessageServer) {
-        self.writer.send_message::<OwnedMessage>(&message.into()).unwrap();
+        let _ = self.writer.send_message::<OwnedMessage>(&message.into());
     }
-    pub fn handle_message(&mut self, message: OwnedMessage) {
+    pub fn handle_message(&mut self, message: OwnedMessage) -> bool {
         match message {
             OwnedMessage::Close(_) => {
                 let message = OwnedMessage::Close(None);
                 self.writer.send_message(&message).unwrap();
                 println!("Client {} disconnected", self.get_id());
-                return;
+                return false;
             }
             OwnedMessage::Ping(ping) => {
                 let message = OwnedMessage::Pong(ping);
@@ -44,5 +44,6 @@ impl Client {
             }
             _ => ()
         }
+        true
     }
 }
