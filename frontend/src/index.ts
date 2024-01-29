@@ -3,20 +3,16 @@ import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
 
-function main(){
-  
-}
-console.log("Hello ts")
-
 const socket = new WebSocket("ws://localhost:8080")
 
 // Connection opened
 socket.addEventListener("open", (event) => {
-    let message: MessageClient = {
-        Connection: "Pseudo"
-    }
-    socket.send(JSON.stringify(message));
-  });
+  let pseudo = window.prompt("Username") as string;
+  let message: MessageClient = {
+      Connection: pseudo
+  }
+  socket.send(JSON.stringify(message));
+});
 
 // Listen for messages
 socket.addEventListener("message", (event) => {

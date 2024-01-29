@@ -2,7 +2,7 @@ use std::net::TcpStream;
 
 use websocket::{sync::Writer, OwnedMessage};
 
-use crate::objects::{MessageClient, MessageServer, Player};
+use crate::objects::{MessageClient, MessageServer, Player, PlayerState};
 
 pub struct Client {
     pub player: Player,
@@ -33,6 +33,7 @@ impl Client {
                 match message {
                     MessageClient::Connection(pseudo) => {
                         self.player.username = pseudo;
+                        self.player.state = PlayerState::Running;
                     },
                     MessageClient::ChangeDirection(direction) => {
                         self.player.direction = direction;

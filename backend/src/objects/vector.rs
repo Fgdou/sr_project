@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 #[derive(TS)]
@@ -17,5 +19,21 @@ impl Vector2 {
             x: 0,
             y: 0
         }
+    }
+}
+
+impl Add for Vector2 {
+    type Output = Vector2;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Vector2 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y
+        }
+    }
+}
+impl PartialEq for Vector2 {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
     }
 }

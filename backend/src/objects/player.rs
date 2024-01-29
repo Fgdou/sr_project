@@ -27,9 +27,27 @@ impl Player {
         Self {
             direction: Direction::Up,
             id,
-            positions: vec!(Vector2::zero()),
+            positions: Vec::new(),
             username: String::new(),
             state: PlayerState::Waiting
+        }
+    }
+    pub fn update(&mut self, size: &Vector2) {
+        if self.state != PlayerState::Running {
+            return
+        }
+        let dir = match self.direction {
+            Direction::Up => Vector2::new(0, -1),
+            Direction::Down => Vector2::new(0, 1),
+            Direction::Left => Vector2::new(-1, 0),
+            Direction::Right => Vector2::new(1, 0),
+        };
+        let new_pos = self.positions.first().unwrap().clone() + dir;
+        if new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= size.x || new_pos.y >= size.y {
+            self.state = PlayerState::Dead;
+        } else {
+            self.positions.push(new_pos);
+            self.positions.remove(0);
         }
     }
 }
