@@ -12,7 +12,7 @@ export class Canvas {
         this.canvas.fillRect(pos.x*width, pos.y*height, width, height)
     }
     clear() {
-        this.canvas.clearRect(0, 0, this.size.x, this.size.y)
+        this.canvas.reset()
     }
     drawGrid(size: Vector2) {
         this.canvas.strokeStyle = "#000000"

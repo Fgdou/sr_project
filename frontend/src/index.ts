@@ -4,7 +4,7 @@ import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
 
-const socket = new WebSocket("ws://localhost:8080")
+const socket = new WebSocket(`ws://${location.hostname}:8080`)
 
 // Connection opened
 socket.addEventListener("open", (event) => {
@@ -18,7 +18,6 @@ socket.addEventListener("open", (event) => {
 // Listen for messages
 socket.addEventListener("message", (event) => {
   let message: MessageServer = JSON.parse(event.data);
-  console.log("Message from server ", message);
 
   if ("Infos" in message)
     draw(message["Infos"])
