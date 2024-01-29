@@ -42,7 +42,7 @@ impl Player {
             Direction::Left => Vector2::new(-1, 0),
             Direction::Right => Vector2::new(1, 0),
         };
-        let new_pos = self.positions.first().unwrap().clone() + dir;
+        let new_pos = self.positions.last().unwrap().clone() + dir;
         if new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= size.x || new_pos.y >= size.y {
             self.state = PlayerState::Dead;
         } else {

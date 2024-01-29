@@ -21,10 +21,11 @@ impl Game {
         self.get_client(id).map(|p| &mut p.player)
     }
     pub fn add_client(&mut self, mut client: Client) {
-        client.player.positions.push(Vector2{
+        let pos = Vector2{
             x: rand::random::<i32>() % self.size.x,
             y: rand::random::<i32>() % self.size.y
-        });
+        };
+        (0..3).for_each(|_| client.player.positions.push(pos.clone()));
         self.players.push(client)
     }
     pub fn next_id(&self) -> i32 {
