@@ -44,7 +44,7 @@ impl Player {
         };
         let new_pos = self.positions.last().unwrap().clone() + dir;
         if new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= size.x || new_pos.y >= size.y {
-            self.state = PlayerState::Dead;
+            self.kill();
         } else {
             self.positions.push(new_pos);
             self.positions.remove(0);
@@ -54,9 +54,20 @@ impl Player {
         let pos = self.positions.iter().last().unwrap().clone();
         self.positions.insert(0, pos);
     }
-    pub fn intersect(&self, apple: &Vector2) -> bool {
+    pub fn intersect_apple(&self, apple: &Vector2) -> bool {
         self.positions.iter().any(|p| p == apple)
     }
+    pub fn intersect_player(&self, other: &Player) -> bool {
+        if other == self {
+            other.positions[0..other.positions.len()-1].contains(self.positions.last().unwrap())
+        } else {
+            other.positions.contains(self.positions.last().unwrap())
+        }
+    }
+    pub fn kill(&mut self) {
+        self.state = PlayerState::Dead
+    }
+
 }
 
 impl PartialEq for Player {

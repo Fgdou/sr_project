@@ -1,3 +1,4 @@
+import { Player } from "../../backend/bindings/Player";
 import { Vector2 } from "../../backend/bindings/Vector2";
 
 export class Canvas {
@@ -30,5 +31,15 @@ export class Canvas {
             this.canvas.lineTo(this.size.x, i*height)
         }
         this.canvas.stroke()
+    }
+    drawPlayer(player: Player, size: Vector2) {
+        let color = "gray"
+        if (player.state == "Running") {
+            color = "#864AF9"
+        }
+
+        player.positions.forEach(p => {
+            this.drawRectangle(p, size, color)
+        })
     }
 }

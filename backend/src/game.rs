@@ -1,3 +1,5 @@
+use std::ops::IndexMut;
+
 use rand::Rng;
 
 use crate::{client::Client, objects::{Infos, MessageServer, Player, Vector2}};
@@ -50,6 +52,12 @@ impl Game {
 
         // players
         self.players.iter_mut().for_each(|p| p.player.update(&self.size));
+
+        // collision
+        let players: Vec<Player> = self.players.iter().map(|p| p.player.clone()).collect();
+        self.players.iter_mut()
+            .filter(|p1| players.iter().any(|p2| p1.player.intersect_player(&p2)))
+            .for_each(|p| p.player.kill());
 
         // apples
         self.apples.retain(|apple| {
