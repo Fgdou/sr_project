@@ -5,14 +5,18 @@ export class Canvas {
     }
 
     drawRectangle(pos: Vector2, size: Vector2, color: string) {
+        let width = this.size.x/size.x;
+        let height = this.size.y/size.y;
+
         this.canvas.fillStyle = color
-        this.canvas.fillRect(pos.x, pos.y, this.size.x/size.x, this.size.y/size.y)
+        this.canvas.fillRect(pos.x*width, pos.y*height, width, height)
     }
     clear() {
         this.canvas.clearRect(0, 0, this.size.x, this.size.y)
     }
     drawGrid(size: Vector2) {
         this.canvas.strokeStyle = "#000000"
+        this.canvas.lineWidth = 2
 
         let width = this.size.x/size.x;
         let height = this.size.y/size.y;

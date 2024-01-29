@@ -36,5 +36,9 @@ let canvas = new Canvas(html.getContext("2d")!, size)
 
 function draw(message: Infos) {
   canvas.clear()
+  message.apples.forEach(apple => canvas.drawRectangle(apple, message.size, "red"))
+  message.players.forEach(player => {
+    player.positions.forEach(p => canvas.drawRectangle(p, message.size, "gray"))
+  })
   canvas.drawGrid(message.size)
 }

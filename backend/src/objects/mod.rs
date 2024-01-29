@@ -5,7 +5,7 @@ mod message_server;
 mod message_client;
 mod vector;
 
-pub use player::Player;
+pub use player::{Player, PlayerState};
 pub use direction::Direction;
 pub use infos::Infos;
 pub use message_server::MessageServer;

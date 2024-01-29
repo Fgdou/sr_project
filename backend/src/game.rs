@@ -9,7 +9,7 @@ impl Game {
     pub fn new() -> Self {
         Self {
             players: Vec::new(),
-            size: Vector2::new(100, 100)
+            size: Vector2::new(20, 20)
         }
     }
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
