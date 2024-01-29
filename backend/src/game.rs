@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use crate::{client::Client, objects::{Infos, MessageServer, Player, Vector2}};
 
 pub struct Game {
@@ -21,9 +23,10 @@ impl Game {
         self.get_client(id).map(|p| &mut p.player)
     }
     pub fn add_client(&mut self, mut client: Client) {
+        let mut rng = rand::thread_rng();
         let pos = Vector2{
-            x: rand::random::<i32>() % self.size.x,
-            y: rand::random::<i32>() % self.size.y
+            x: rng.gen_range(0..self.size.x),
+            y: rng.gen_range(0..self.size.y),
         };
         (0..3).for_each(|_| client.player.positions.push(pos.clone()));
         self.players.push(client)
@@ -35,9 +38,10 @@ impl Game {
 
         // apples
         while self.apples.len() < 10 {
+            let mut rng = rand::thread_rng();
             let pos = Vector2{
-                x: rand::random::<i32>() % self.size.x,
-                y: rand::random::<i32>() % self.size.y,
+                x: rng.gen_range(0..self.size.x),
+                y: rng.gen_range(0..self.size.y),
             };
             if self.apples.iter().all(|a| a != &pos) {
                 self.apples.push(pos);
@@ -46,6 +50,17 @@ impl Game {
 
         // players
         self.players.iter_mut().for_each(|p| p.player.update(&self.size));
+
+        // apples
+        self.apples.retain(|apple| {
+            let player = self.players.iter_mut().find(|p| p.player.positions.contains(apple));
+            if let Some(player) = player {
+                player.player.increase();
+                false
+            } else {
+                true
+            }
+        });
 
         // send message
         let all_players: Vec<Player> = self.players.iter().map(|p| p.player.clone()).collect();

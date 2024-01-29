@@ -10,7 +10,7 @@ mod game;
 
 fn handle_loop(game: Arc<Mutex<Game>>) {
     loop {
-        thread::sleep(Duration::from_millis(1000));
+        thread::sleep(Duration::from_millis(300));
         game.lock().unwrap().tick();
     }
 }

@@ -50,6 +50,13 @@ impl Player {
             self.positions.remove(0);
         }
     }
+    pub fn increase(&mut self) {
+        let pos = self.positions.iter().last().unwrap().clone();
+        self.positions.insert(0, pos);
+    }
+    pub fn intersect(&self, apple: &Vector2) -> bool {
+        self.positions.iter().any(|p| p == apple)
+    }
 }
 
 impl PartialEq for Player {
