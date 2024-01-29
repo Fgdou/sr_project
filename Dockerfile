@@ -13,10 +13,11 @@ RUN cd frontend && npm install && npm run build
 FROM debian:bookworm-slim as runner
 WORKDIR /app
 
+EXPOSE 80
 RUN apt update && apt install -y openssl nginx
 
 COPY ./docker-start.sh .
-COPY nginx.conf /etc/nginx/conf.d/000-default.conf
+COPY nginx.conf /etc/nginx/sites-enabled/default
 COPY --from=builder_backend /app/target/release/backend ./backend
 COPY --from=builder_frontend /app/frontend/dist ./frontend
 CMD [ "sh", "/app/docker-start.sh" ]

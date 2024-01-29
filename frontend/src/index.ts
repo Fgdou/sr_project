@@ -4,7 +4,7 @@ import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
 
-const socket = new WebSocket(`ws://${location.hostname}:8080`)
+const socket = new WebSocket(`ws://${location.hostname}/ws`)
 
 // Connection opened
 socket.addEventListener("open", (event) => {

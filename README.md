@@ -1,7 +1,13 @@
-# ESIR3 SR Project - Multiplayer Snake Game
+ESIR3 SR Project - Multiplayer Snake Game
+===
 
-## Members
+# Members
 - [Fabien GOARDOU](https://fabiengoardou.fr/)
 
-## Design
+# Design
 See the [design file](./design/design.md)
+
+# Run
+```sh
+docker compose up --build
+```
