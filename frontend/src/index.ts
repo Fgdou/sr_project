@@ -1,3 +1,4 @@
+import { Direction } from "../../backend/bindings/Direction";
 import { Infos } from "../../backend/bindings/Infos";
 import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
@@ -22,6 +23,28 @@ socket.addEventListener("message", (event) => {
   if ("Infos" in message)
     draw(message["Infos"])
 });
+
+function keyHandler(event: KeyboardEvent) {
+  let code = event.key;
+
+  var dir: Direction|undefined = undefined;
+  switch (code) {
+    case "ArrowLeft": dir = "Left"; break;
+    case "ArrowRight": dir = "Right"; break;
+    case "ArrowUp": dir = "Up"; break;
+    case "ArrowDown": dir = "Down"; break;
+    default:
+  }
+
+  if(dir != undefined) {
+    let message: MessageClient = {
+      ChangeDirection: dir
+    }
+    socket.send(JSON.stringify(message))
+  }
+}
+
+window.addEventListener("keydown", keyHandler)
 
 let html = (document.getElementById("canvas") as HTMLCanvasElement)
 let size = {
