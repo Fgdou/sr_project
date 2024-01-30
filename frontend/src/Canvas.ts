@@ -34,21 +34,26 @@ export class Canvas {
     }
     drawPlayer(player: Player, size: Vector2, me: boolean) {
         let color = "gray"
-        if (player.state == "Running") {
+        if (player.state == "Running" || me) {
             color = (me) ? "#0dce74" : "#864AF9"
         }
 
         player.positions.forEach(p => {
             this.drawRectangle(p, size, color)
         })
+
+        if(player.state instanceof Object && "Waiting" in player.state && !me) {
+            let pos = player.positions[player.positions.length-1]
+            this.drawText(Math.floor(player.state.Waiting/2+0.5).toString(), {x: pos.x, y: pos.y+1}, size, "white", 1.7);
+        }
     }
-    drawText(text: string, pos: Vector2, size: Vector2, color: string) {
+    drawText(text: string, pos: Vector2, size: Vector2, color: string, fontSize: number = 1.0) {
         this.canvas.fillStyle = color
-        this.canvas.font = 'bold 15px sans-serif'
+        this.canvas.font = `bold ${15*fontSize}px sans-serif`
         this.canvas.textAlign = "center"
         let width = this.size.x/size.x;
         let height = this.size.y/size.y;
 
-        this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.3)*height)
+        this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.1)*height)
     }
 }

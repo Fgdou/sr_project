@@ -81,7 +81,7 @@ impl Player {
     }
     pub fn set_username(&mut self, username: String) {
         if let PlayerState::Connecting = self.state {
-            self.state = PlayerState::Waiting(4);
+            self.state = PlayerState::Waiting(12);
         }
         self.username = username;
     }
