@@ -3,3 +3,4 @@ services:
     build: .
     ports:
       - 80:80
+    image: ghcr.io/fgdou/sr_project:master
