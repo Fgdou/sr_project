@@ -78,6 +78,12 @@ function draw(message: Infos) {
     canvas.drawPlayer(player, message.size, player.id == id)
   })
   canvas.drawGrid(message.size)
+  message.players
+    .filter(p => p.id != id && p.state == "Running")
+    .forEach(player => {
+      let head = player.positions[player.positions.length-1]
+      canvas.drawText(player.username, head, message.size, "white")
+    })
 
   let player = getPlayer(message, id)
   if(player){
