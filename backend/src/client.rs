@@ -42,8 +42,8 @@ impl Client {
                 match message {
                     Ok(MessageClient::Connection(pseudo)) => {
                         let pseudo = pseudo.trim();
-                        if pseudo.len() > 20 {
-                            self.send_message(&MessageServer::Error("Username should be less than 20 characters".to_string()))
+                        if pseudo.len() > 10 {
+                            self.send_message(&MessageServer::Error("Username should be less than 10 characters".to_string()))
                         } else if pseudo.chars().any(|c| !c.is_alphanumeric()) {
                             self.send_message(&MessageServer::Error("Username should be only numbers and chars in ASCII".to_string()))
                         } else {

@@ -94,6 +94,14 @@ function draw(message: Infos) {
   if(player){
     divUsername.textContent = player.username
     divScore.textContent = player.positions.length.toString()
+
+    if(player.state instanceof Object && "Waiting" in player.state && player.state.Waiting%2 == 0) {
+      let pos = {
+        x: message.size.x/2,
+        y: message.size.y
+      }
+      canvas.drawText((player.state.Waiting/2).toString(), pos, message.size, "white", 70);
+    }
   }
 
   leaderboard.update(message, id)
