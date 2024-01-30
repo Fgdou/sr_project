@@ -32,7 +32,7 @@ let leaderboard = new Leaderboard("leaderboard");
         if ("SetId" in message)
           id = message["SetId"]
         if ("Error" in message)
-          alert(message.Error)
+          handleError(message.Error)
       });
     
       // Connection opened
@@ -47,6 +47,11 @@ let leaderboard = new Leaderboard("leaderboard");
     } catch (e) {}
   }
 })()
+
+export function handleError(error: string) {
+  alert(error)
+  window.logout()
+}
 
 let html = (document.getElementById("canvas") as HTMLCanvasElement)
 let size = {
