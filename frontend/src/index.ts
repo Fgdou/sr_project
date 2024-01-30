@@ -4,24 +4,51 @@ import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
 
-const socket = new WebSocket(`wss://${location.hostname}/ws`)
+let protocol = (location.protocol == "https") ? "wss" : "ws"
+let urls = [
+  `${protocol}://${location.hostname}/ws`,
+  `${protocol}://${location.hostname}:8080`
+]
 
-// Connection opened
-socket.addEventListener("open", (event) => {
-  let pseudo = window.prompt("Username") as string;
-  let message: MessageClient = {
-      Connection: pseudo
+function getSocket(url: string): Promise<WebSocket> {
+  return new Promise((resolve, reject) => {
+    let socket = new WebSocket(url)
+    socket.addEventListener("open", e => {
+      resolve(socket)
+    })
+    socket.addEventListener("error", e => {
+      reject()
+    })
+  })
+}
+
+let socket: WebSocket|undefined = undefined;
+
+
+(async () => {
+  for(let url of urls){
+    try{
+      socket = await getSocket(url)
+
+      // Listen for messages
+      socket.addEventListener("message", (event) => {
+        let message: MessageServer = JSON.parse(event.data);
+    
+        if ("Infos" in message)
+          draw(message["Infos"])
+      });
+    
+      // Connection opened
+      let pseudo = window.prompt("Username") as string;
+      let message: MessageClient = {
+          Connection: pseudo
+      }
+      socket?.send(JSON.stringify(message));
+    
+      break
+    } catch (e) {}
   }
-  socket.send(JSON.stringify(message));
-});
-
-// Listen for messages
-socket.addEventListener("message", (event) => {
-  let message: MessageServer = JSON.parse(event.data);
-
-  if ("Infos" in message)
-    draw(message["Infos"])
-});
+})()
 
 function keyHandler(event: KeyboardEvent) {
   let code = event.key;
@@ -39,7 +66,7 @@ function keyHandler(event: KeyboardEvent) {
     let message: MessageClient = {
       ChangeDirection: dir
     }
-    socket.send(JSON.stringify(message))
+    socket?.send(JSON.stringify(message))
   }
 }
 
