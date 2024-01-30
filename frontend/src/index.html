@@ -35,6 +35,14 @@
             }
             #leaderboard {
                 margin: auto;
+                overflow-y: scroll;
+                max-height: 150px;
+                display: inline-block;
+                padding: 0 100px;
+            }
+            .leaderboard {
+                display: flex;
+                justify-content: center;
             }
         </style>
     </head>
@@ -42,7 +50,7 @@
         <div class="container">
             <div class="playerInfos"><span id="username">Username</span><span id="score">Score</span></div>
             <canvas id="canvas" height="700px" width="700px"></canvas>
-            <div>
+            <div class="leaderboard">
                 <table id="leaderboard"></table>
             </div>
         </div>

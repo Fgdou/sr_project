@@ -8,7 +8,8 @@ export class Leaderboard {
     }
 
     update(message: Infos, player_id: number|undefined) {
-        let table = message.players.sort((a, b) => b.positions.length - a.positions.length).map(p => {
+        this.div.textContent = ""
+        message.players.sort((a, b) => b.positions.length - a.positions.length).map(p => {
             let tr = this.div.insertRow()
             let td1 = tr.insertCell()
             let td2 = tr.insertCell()
@@ -18,13 +19,6 @@ export class Leaderboard {
             if(p.id == player_id) {
                 tr.classList.add("active")
             }
-
-            tr.appendChild(td1)
-            tr.appendChild(td2)
-
-            return tr
         })
-        this.div.textContent = ""
-        table.forEach(t => this.div.appendChild(t))
     }
 }

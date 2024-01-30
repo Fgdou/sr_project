@@ -31,6 +31,8 @@ let leaderboard = new Leaderboard("leaderboard");
           draw(message["Infos"])
         if ("SetId" in message)
           id = message["SetId"]
+        if ("Error" in message)
+          alert(message.Error)
       });
     
       // Connection opened

@@ -11,7 +11,7 @@ mod game;
 fn handle_loop(game: Arc<Mutex<Game>>) {
     loop {
         thread::sleep(Duration::from_millis(300));
-        game.lock().unwrap().tick();
+        let _ = game.lock().map(|mut g| g.tick());
     }
 }
 
@@ -36,11 +36,15 @@ fn main() {
 
             let (mut receiver, sender) = client.split().unwrap();
 
-            let id = game.lock().unwrap().next_id();
+            let id = {
+                let mut game = game.lock().unwrap();
+                let id = game.next_id();
 
-            let mut player = Client::new(Player::new(id), sender);
-            player.send_message(&MessageServer::SetId(player.player.get_id()));
-            game.lock().unwrap().add_client(player);
+                let mut player = Client::new(Player::new(id), sender);
+                player.send_message(&MessageServer::SetId(player.player.get_id()));
+                game.add_client(player);
+                id
+            };
 
 
             for message in receiver.incoming_messages() {
