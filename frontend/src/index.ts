@@ -57,6 +57,7 @@ function keyHandler(event: KeyboardEvent) {
   }
 
   if(dir != undefined) {
+    event.preventDefault()
     let message: MessageClient = {
       ChangeDirection: dir
     }
