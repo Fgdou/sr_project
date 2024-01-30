@@ -1,6 +1,8 @@
 ESIR3 SR Project - Multiplayer Snake Game
 ===
 
+![logo](./frontend/src/img/logo.png)
+
 A multiplayer snake game.
 
 # Demo
