@@ -38,10 +38,7 @@ fn main() {
 
             let id = game.lock().unwrap().next_id();
 
-            let player = Client {
-                player: Player::new(id),
-                writer: sender
-            };
+            let player = Client::new(Player::new(id), sender);
             game.lock().unwrap().add_client(player);
 
             for message in receiver.incoming_messages() {

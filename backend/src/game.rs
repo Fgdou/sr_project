@@ -49,7 +49,12 @@ impl Game {
         }
 
         // players
-        self.players.iter_mut().for_each(|p| p.player.update(&self.size));
+        self.players.iter_mut().for_each(|p| {
+            if let Some(dir) = p.next_move.pop() {
+                p.player.set_direction(dir);
+            }
+            p.player.update(&self.size)
+        });
 
         // collision
         let players: Vec<Player> = self.players.iter()
