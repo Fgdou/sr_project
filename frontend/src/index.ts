@@ -3,7 +3,7 @@ import { Infos } from "../../backend/bindings/Infos";
 import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
-import { getPlayer, getSocket, getUsername } from "./utils.js";
+import { getPlayer, getSocket, getUsername, setupSwipes } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
 let urls = [
@@ -76,6 +76,13 @@ let canvas = new Canvas(html.getContext("2d")!, size)
 
 let divUsername = document.getElementById("username") as HTMLSpanElement
 let divScore = document.getElementById("score") as HTMLSpanElement
+
+setupSwipes(dir => {
+  let message: MessageClient = {
+    "ChangeDirection": dir
+  }
+  socket?.send(JSON.stringify(message))
+})
 
 function draw(message: Infos) {
   canvas.clear()

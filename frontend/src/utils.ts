@@ -1,3 +1,4 @@
+import { Direction } from "../../backend/bindings/Direction";
 import { Infos } from "../../backend/bindings/Infos";
 import { Player } from "../../backend/bindings/Player";
 
@@ -43,4 +44,52 @@ export function getPlayer(infos: Infos, id: number|undefined): Player|undefined 
     let list = infos.players.filter(p => p.id == id)
     if (list.length == 0) return undefined
     return list[0]
+}
+
+export function setupSwipes(callback: (dir: Direction) => void) {
+    document.addEventListener('touchstart', handleTouchStart, false);        
+    document.addEventListener('touchmove', handleTouchMove, false);
+
+    var xDown: number|null = null;                                                        
+    var yDown: number|null = null;
+
+    function getTouches(evt: TouchEvent) {
+        return evt.touches
+    }                                                     
+                                                                            
+    function handleTouchStart(evt: TouchEvent) {
+        const firstTouch = getTouches(evt)[0];                                      
+        xDown = firstTouch.clientX;                                      
+        yDown = firstTouch.clientY;                                      
+    };                                                
+                                                                            
+    function handleTouchMove(evt: TouchEvent) {
+        evt.preventDefault()
+        if ( ! xDown || ! yDown ) {
+            return;
+        }
+
+        var xUp = evt.touches[0].clientX;                                    
+        var yUp = evt.touches[0].clientY;
+
+        var xDiff = xDown - xUp;
+        var yDiff = yDown - yUp;
+                                                                            
+        if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+            if ( xDiff < 0 ) {
+                callback("Right")
+            } else {
+                callback("Left")
+            }                       
+        } else {
+            if ( yDiff < 0 ) {
+                callback("Down")
+            } else { 
+                callback("Up")
+            }                                                                 
+        }
+        /* reset values */
+        xDown = null;
+        yDown = null;                                             
+    };
 }
