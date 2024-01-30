@@ -3,7 +3,7 @@ import { Infos } from "../../backend/bindings/Infos";
 import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
-import { getSocket, getUsername } from "./utils.js";
+import { getPlayer, getSocket, getUsername } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
 let urls = [
@@ -12,7 +12,7 @@ let urls = [
 ]
 
 let socket: WebSocket|undefined = undefined;
-
+let id: number|undefined = undefined;
 
 (async () => {
   for(let url of urls){
@@ -27,6 +27,8 @@ let socket: WebSocket|undefined = undefined;
     
         if ("Infos" in message)
           draw(message["Infos"])
+        if ("SetId" in message)
+          id = message["SetId"]
       });
     
       // Connection opened
@@ -71,6 +73,9 @@ let size = {
 }
 let canvas = new Canvas(html.getContext("2d")!, size)
 
+let divUsername = document.getElementById("username") as HTMLSpanElement
+let divScore = document.getElementById("score") as HTMLSpanElement
+
 function draw(message: Infos) {
   canvas.clear()
   message.apples.forEach(apple => canvas.drawRectangle(apple, message.size, "red"))
@@ -78,4 +83,10 @@ function draw(message: Infos) {
     canvas.drawPlayer(player, message.size)
   })
   canvas.drawGrid(message.size)
+
+  let player = getPlayer(message, id)
+  if(player){
+    divUsername.textContent = player.username
+    divScore.textContent = player.positions.length.toString()
+  }
 }
