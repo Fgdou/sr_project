@@ -34,7 +34,7 @@ export class Canvas {
     }
     drawPlayer(player: Player, size: Vector2, me: boolean) {
         let color = "gray"
-        if (player.state == "Running" || me) {
+        if (player.state == "Running") {
             color = (me) ? "#0dce74" : "#864AF9"
         }
 
