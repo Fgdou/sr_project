@@ -28,7 +28,7 @@ impl Game {
         let mut rng = rand::thread_rng();
         let pos = Vector2{
             x: rng.gen_range(0..self.size.x),
-            y: rng.gen_range(0..self.size.y),
+            y: rng.gen_range(5..self.size.y),
         };
         (0..3).for_each(|_| client.player.positions.push(pos.clone()));
         self.players.push(client)
