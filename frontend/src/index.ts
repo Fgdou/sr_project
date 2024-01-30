@@ -80,7 +80,7 @@ function draw(message: Infos) {
   canvas.clear()
   message.apples.forEach(apple => canvas.drawRectangle(apple, message.size, "red"))
   message.players.forEach(player => {
-    canvas.drawPlayer(player, message.size)
+    canvas.drawPlayer(player, message.size, player.id == id)
   })
   canvas.drawGrid(message.size)
 
