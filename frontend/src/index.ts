@@ -3,24 +3,13 @@ import { Infos } from "../../backend/bindings/Infos";
 import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
+import { getSocket, getUsername } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
 let urls = [
   `${protocol}://${location.hostname}/ws`,
   `${protocol}://${location.hostname}:8080`
 ]
-
-function getSocket(url: string): Promise<WebSocket> {
-  return new Promise((resolve, reject) => {
-    let socket = new WebSocket(url)
-    socket.addEventListener("open", e => {
-      resolve(socket)
-    })
-    socket.addEventListener("error", e => {
-      reject()
-    })
-  })
-}
 
 let socket: WebSocket|undefined = undefined;
 
@@ -33,13 +22,16 @@ let socket: WebSocket|undefined = undefined;
       // Listen for messages
       socket.addEventListener("message", (event) => {
         let message: MessageServer = JSON.parse(event.data);
+
+        console.log(message)
     
         if ("Infos" in message)
           draw(message["Infos"])
       });
     
       // Connection opened
-      let pseudo = window.prompt("Username") as string;
+      let pseudo = getUsername();
+      console.log(`Hello ${pseudo}`)
       let message: MessageClient = {
           Connection: pseudo
       }

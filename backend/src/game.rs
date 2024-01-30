@@ -1,8 +1,6 @@
-use std::ops::IndexMut;
-
 use rand::Rng;
 
-use crate::{client::Client, objects::{Infos, MessageServer, Player, Vector2}};
+use crate::{client::Client, objects::{Infos, MessageServer, Player, PlayerState, Vector2}};
 
 pub struct Game {
     players: Vec<Client>,
@@ -19,7 +17,7 @@ impl Game {
         }
     }
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
-        self.players.iter_mut().find(|p| p.player.id == id)
+        self.players.iter_mut().find(|p| p.player.get_id() == id)
     }
     pub fn get_player(&mut self, id: i32) -> Option<&mut Player> {
         self.get_client(id).map(|p| &mut p.player)
@@ -28,13 +26,13 @@ impl Game {
         let mut rng = rand::thread_rng();
         let pos = Vector2{
             x: rng.gen_range(0..self.size.x),
-            y: rng.gen_range(0..self.size.y),
+            y: rng.gen_range(5..self.size.y),
         };
-        (0..3).for_each(|_| client.player.positions.push(pos.clone()));
+        (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, -i)));
         self.players.push(client)
     }
     pub fn next_id(&self) -> i32 {
-        (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.get_id() != i)).unwrap()
+        (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.player.get_id() != i)).unwrap()
     }
     pub fn tick(&mut self) {
 
@@ -54,14 +52,16 @@ impl Game {
         self.players.iter_mut().for_each(|p| p.player.update(&self.size));
 
         // collision
-        let players: Vec<Player> = self.players.iter().map(|p| p.player.clone()).collect();
+        let players: Vec<Player> = self.players.iter()
+            .filter(|p| p.player.get_state() == &PlayerState::Running)
+            .map(|p| p.player.clone()).collect();
         self.players.iter_mut()
             .filter(|p1| players.iter().any(|p2| p1.player.intersect_player(&p2)))
             .for_each(|p| p.player.kill());
 
         // apples
         self.apples.retain(|apple| {
-            let player = self.players.iter_mut().find(|p| p.player.positions.contains(apple));
+            let player = self.players.iter_mut().find(|p| p.player.intersect_apple(apple));
             if let Some(player) = player {
                 player.player.increase();
                 false
@@ -82,6 +82,6 @@ impl Game {
         })
     }
     pub fn remove_client(&mut self, id: i32) {
-        self.players.retain(|p| p.get_id() != id);
+        self.players.retain(|p| p.player.get_id() != id);
     }
 }

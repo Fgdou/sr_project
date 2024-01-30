@@ -2,7 +2,7 @@ use std::net::TcpStream;
 
 use websocket::{sync::Writer, OwnedMessage};
 
-use crate::objects::{MessageClient, MessageServer, Player, PlayerState};
+use crate::objects::{MessageClient, MessageServer, Player};
 
 pub struct Client {
     pub player: Player,
@@ -10,9 +10,6 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn get_id(&self) -> i32 {
-        self.player.id
-    }
     pub fn send_message(&mut self, message: &MessageServer) {
         let _ = self.writer.send_message::<OwnedMessage>(&message.into());
     }
@@ -21,7 +18,7 @@ impl Client {
             OwnedMessage::Close(_) => {
                 let message = OwnedMessage::Close(None);
                 self.writer.send_message(&message).unwrap();
-                println!("Client {} disconnected", self.get_id());
+                println!("Client {} disconnected", self.player.get_id());
                 return false;
             }
             OwnedMessage::Ping(ping) => {
@@ -32,11 +29,10 @@ impl Client {
                 let message: MessageClient = serde_json::from_str(value.as_str()).expect("Not a message");
                 match message {
                     MessageClient::Connection(pseudo) => {
-                        self.player.username = pseudo;
-                        self.player.state = PlayerState::Running;
+                        self.player.set_username(pseudo);
                     },
                     MessageClient::ChangeDirection(direction) => {
-                        self.player.direction = direction;
+                        self.player.set_direction(direction);
                     },
                     _ => {
                         self.send_message(&MessageServer::Error("Fail to interpret message".to_string()))

@@ -6,18 +6,19 @@ use super::{Direction, Vector2};
 #[ts(export)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
-    pub id: i32,
-    pub username: String,
-    pub positions: Vec<Vector2>,
-    pub direction: Direction,
-    pub state: PlayerState,
+    id: i32,
+    username: String,
+    positions: Vec<Vector2>,
+    direction: Direction,
+    state: PlayerState,
 }
 
 #[derive(TS)]
 #[ts(export)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum PlayerState {
-    Waiting,
+    Waiting(i32),
+    Connecting,
     Dead,
     Running
 }
@@ -29,25 +30,34 @@ impl Player {
             id,
             positions: Vec::new(),
             username: String::new(),
-            state: PlayerState::Waiting
+            state: PlayerState::Connecting
         }
     }
     pub fn update(&mut self, size: &Vector2) {
-        if self.state != PlayerState::Running {
-            return
-        }
-        let dir = match self.direction {
-            Direction::Up => Vector2::new(0, -1),
-            Direction::Down => Vector2::new(0, 1),
-            Direction::Left => Vector2::new(-1, 0),
-            Direction::Right => Vector2::new(1, 0),
-        };
-        let new_pos = self.positions.last().unwrap().clone() + dir;
-        if new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= size.x || new_pos.y >= size.y {
-            self.kill();
-        } else {
-            self.positions.push(new_pos);
-            self.positions.remove(0);
+        match self.state {
+            PlayerState::Waiting(n) => {
+                self.state = if n > 1 {
+                    PlayerState::Waiting(n-1)
+                } else {
+                    PlayerState::Running
+                }
+            },
+            PlayerState::Running => {
+                let dir = match self.direction {
+                    Direction::Up => Vector2::new(0, -1),
+                    Direction::Down => Vector2::new(0, 1),
+                    Direction::Left => Vector2::new(-1, 0),
+                    Direction::Right => Vector2::new(1, 0),
+                };
+                let new_pos = self.positions.last().unwrap().clone() + dir;
+                if new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= size.x || new_pos.y >= size.y {
+                    self.kill();
+                } else {
+                    self.positions.push(new_pos);
+                    self.positions.remove(0);
+                };
+            },
+            _ => ()
         }
     }
     pub fn increase(&mut self) {
@@ -67,6 +77,26 @@ impl Player {
     pub fn kill(&mut self) {
         self.state = PlayerState::Dead
     }
+    pub fn set_username(&mut self, username: String) {
+        self.state = PlayerState::Waiting(4);
+        self.username = username;
+    }
+    pub fn get_id(&self) -> i32 {
+        self.id
+    }
+    pub fn get_positions(&self) -> &Vec<Vector2> {
+        &self.positions
+    }
+    pub fn set_direction(&mut self, direction: Direction) {
+        self.direction = direction
+    }
+    pub fn add_position(&mut self, position: Vector2) {
+        self.positions.push(position)
+    }
+    pub fn get_state(&self) -> &PlayerState {
+        &self.state
+    }
+
 
 }
 
