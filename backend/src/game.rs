@@ -12,7 +12,7 @@ impl Game {
     pub fn new() -> Self {
         Self {
             players: Vec::new(),
-            size: Vector2::new(20, 20),
+            size: Vector2::new(30, 30),
             apples: Vec::new()
         }
     }
