@@ -98,6 +98,9 @@ impl Player {
     pub fn get_state(&self) -> &PlayerState {
         &self.state
     }
+    pub fn get_username(&self) -> &String {
+        &self.username
+    }
 
 
 }

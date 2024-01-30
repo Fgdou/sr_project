@@ -12,6 +12,10 @@ pub struct Client {
 
 impl Client {
     pub fn send_message(&mut self, message: &MessageServer) {
+        match message {
+            MessageServer::Error(error) => println!("Error for {} : {}", self.player.get_username(), error),
+            _ => ()
+        }
         let _ = self.writer.send_message::<OwnedMessage>(&message.into());
     }
     pub fn new(player: Player, writer: Writer<TcpStream>) -> Self {
@@ -26,7 +30,7 @@ impl Client {
             OwnedMessage::Close(_) => {
                 let message = OwnedMessage::Close(None);
                 let _ = self.writer.send_message(&message);
-                println!("Client {} disconnected", self.player.get_id());
+                println!("Client {}:{} disconnected", self.player.get_id(), self.player.get_username());
                 return false;
             }
             OwnedMessage::Ping(ping) => {
