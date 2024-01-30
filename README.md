@@ -3,14 +3,14 @@ ESIR3 SR Project - Multiplayer Snake Game
 
 A multiplayer snake game.
 
+# Demo
+You can access the game at https://sr.fgdou.ovh/
+
 # Members
 - [Fabien GOARDOU](https://fabiengoardou.fr/)
 
 # Design
 See the [design file](./design/design.md)
-
-# Demo
-You can access the game at https://sr.fgdou.ovh/
 
 # Docker
 ## Run it on your server
