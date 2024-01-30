@@ -75,10 +75,14 @@ impl Player {
         }
     }
     pub fn kill(&mut self) {
-        self.state = PlayerState::Dead
+        if self.state == PlayerState::Running {
+            self.state = PlayerState::Dead
+        }
     }
     pub fn set_username(&mut self, username: String) {
-        self.state = PlayerState::Waiting(4);
+        if let PlayerState::Connecting = self.state {
+            self.state = PlayerState::Waiting(4);
+        }
         self.username = username;
     }
     pub fn get_id(&self) -> i32 {
