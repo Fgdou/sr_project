@@ -3,52 +3,11 @@
     <head>
         <title>Snake</title>
         <meta charset="utf-8">
-        <style>
-            * {
-                font-family: sans-serif;
-            }
-            body, html {
-                margin: 0;
-                padding: 0;
-                overscroll-behavior: none;
-            }
-            canvas {
-                box-shadow: 0px 0px 20px 0px rgba(0,0,0,.3);
-                border-radius: 20px;
-                background-color: black;
-                margin: 20px 0;
-            }
-            .container {
-                position: absolute;
-                display: inline-block;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-            }
-            .playerInfos {
-                display: flex;
-                justify-content: space-between;
-                font-size: 200%;
-            }
-            #leaderboard .active {
-                font-weight: bold;
-            }
-            #leaderboard {
-                margin: auto;
-                overflow-y: scroll;
-                max-height: 150px;
-                display: inline-block;
-                padding: 0 100px;
-            }
-            .leaderboard {
-                display: flex;
-                justify-content: center;
-            }
-        </style>
+        <link rel="stylesheet" href="index.css">
     </head>
     <body>
         <div class="container">
-            <div class="playerInfos"><span id="username">Username</span><span id="score">Score</span></div>
+            <div class="playerInfos"><div class="username_logout"><a onclick="logout()" id="logout" href="#">X</a><span id="username">Username</span></div><span id="score">Score</span></div>
             <canvas id="canvas" height="700px" width="700px"></canvas>
             <div class="leaderboard">
                 <table id="leaderboard"></table>

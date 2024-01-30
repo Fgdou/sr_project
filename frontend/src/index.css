@@ -1,0 +1,49 @@
+* {
+    font-family: sans-serif;
+}
+body, html {
+    margin: 0;
+    padding: 0;
+    overscroll-behavior: none;
+}
+canvas {
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,.3);
+    border-radius: 20px;
+    background-color: black;
+    margin: 20px 0;
+}
+.container {
+    position: absolute;
+    display: inline-block;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.playerInfos {
+    display: flex;
+    justify-content: space-between;
+    font-size: 200%;
+}
+#leaderboard .active {
+    font-weight: bold;
+}
+#leaderboard {
+    margin: auto;
+    overflow-y: scroll;
+    max-height: 150px;
+    display: inline-block;
+    padding: 0 100px;
+}
+.leaderboard {
+    display: flex;
+    justify-content: center;
+}
+.username_logout {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+#logout {
+    text-decoration: none;
+    color: red;
+}

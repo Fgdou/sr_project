@@ -42,4 +42,13 @@ export class Canvas {
             this.drawRectangle(p, size, color)
         })
     }
+    drawText(text: string, pos: Vector2, size: Vector2, color: string) {
+        this.canvas.fillStyle = color
+        this.canvas.font = 'bold 15px sans-serif'
+        this.canvas.textAlign = "center"
+        let width = this.size.x/size.x;
+        let height = this.size.y/size.y;
+
+        this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.3)*height)
+    }
 }
