@@ -32,10 +32,10 @@ export class Canvas {
         }
         this.canvas.stroke()
     }
-    drawPlayer(player: Player, size: Vector2) {
+    drawPlayer(player: Player, size: Vector2, me: boolean) {
         let color = "gray"
         if (player.state == "Running") {
-            color = "#864AF9"
+            color = (me) ? "#0dce74" : "#864AF9"
         }
 
         player.positions.forEach(p => {

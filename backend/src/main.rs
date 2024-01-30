@@ -2,7 +2,7 @@ use std::{sync::{Arc, Mutex}, thread, time::Duration};
 use client::Client;
 use websocket::sync::Server;
 
-use crate::{game::Game, objects::Player};
+use crate::{game::Game, objects::{MessageServer, Player}};
 
 mod objects;
 mod client;
@@ -38,8 +38,10 @@ fn main() {
 
             let id = game.lock().unwrap().next_id();
 
-            let player = Client::new(Player::new(id), sender);
+            let mut player = Client::new(Player::new(id), sender);
+            player.send_message(&MessageServer::SetId(player.player.get_id()));
             game.lock().unwrap().add_client(player);
+
 
             for message in receiver.incoming_messages() {
                 if let Ok(message) = message {

@@ -1,3 +1,6 @@
+import { Infos } from "../../backend/bindings/Infos";
+import { Player } from "../../backend/bindings/Player";
+
 export function getCookie(cname: string): string {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -34,4 +37,10 @@ export function getSocket(url: string): Promise<WebSocket> {
         reject()
         })
     })
+}
+export function getPlayer(infos: Infos, id: number|undefined): Player|undefined {
+    if(id == undefined) return undefined
+    let list = infos.players.filter(p => p.id == id)
+    if (list.length == 0) return undefined
+    return list[0]
 }

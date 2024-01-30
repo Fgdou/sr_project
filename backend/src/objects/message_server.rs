@@ -8,7 +8,8 @@ use super::Infos;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum MessageServer {
     Error(String),
-    Infos(Infos),   
+    Infos(Infos),
+    SetId(i32)
 }
 
 impl Into<OwnedMessage> for &MessageServer {
