@@ -3,9 +3,29 @@
     <head>
         <title>Snake</title>
         <meta charset="utf-8">
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            canvas {
+                box-shadow: 0px 0px 20px 0px rgba(0,0,0,.3);
+                border-radius: 20px;
+                background-color: black;
+            }
+            .container {
+                position: absolute;
+                display: inline-block;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            }
+        </style>
     </head>
     <body>
-        <canvas id="canvas" height="600px" width="600px"></canvas>
+        <div class="container">
+            <canvas id="canvas" height="800px" width="800px"></canvas>
+        </div>
         <script>var exports = {};</script>
         <script type="module" src="frontend/src/index.js"></script>
     </body>

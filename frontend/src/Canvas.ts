@@ -17,7 +17,7 @@ export class Canvas {
     }
     drawGrid(size: Vector2) {
         this.canvas.strokeStyle = "#000000"
-        this.canvas.lineWidth = 2
+        this.canvas.lineWidth = 1
 
         let width = this.size.x/size.x;
         let height = this.size.y/size.y;
