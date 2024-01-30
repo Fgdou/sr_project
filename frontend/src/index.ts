@@ -3,7 +3,7 @@ import { Infos } from "../../backend/bindings/Infos";
 import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
-import { getPlayer, getSocket, getUsername, setupSwipes } from "./utils.js";
+import { getPlayer, getSocket, getUsername, setupKeyboard, setupSwipes } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
 let urls = [
@@ -44,29 +44,6 @@ let id: number|undefined = undefined;
   }
 })()
 
-function keyHandler(event: KeyboardEvent) {
-  let code = event.key;
-
-  var dir: Direction|undefined = undefined;
-  switch (code) {
-    case "ArrowLeft": dir = "Left"; break;
-    case "ArrowRight": dir = "Right"; break;
-    case "ArrowUp": dir = "Up"; break;
-    case "ArrowDown": dir = "Down"; break;
-    default:
-  }
-
-  if(dir != undefined) {
-    event.preventDefault()
-    let message: MessageClient = {
-      ChangeDirection: dir
-    }
-    socket?.send(JSON.stringify(message))
-  }
-}
-
-window.addEventListener("keydown", keyHandler)
-
 let html = (document.getElementById("canvas") as HTMLCanvasElement)
 let size = {
   x: html.width,
@@ -80,6 +57,12 @@ let divScore = document.getElementById("score") as HTMLSpanElement
 setupSwipes(dir => {
   let message: MessageClient = {
     "ChangeDirection": dir
+  }
+  socket?.send(JSON.stringify(message))
+})
+setupKeyboard(dir => {
+  let message: MessageClient = {
+    ChangeDirection: dir
   }
   socket?.send(JSON.stringify(message))
 })

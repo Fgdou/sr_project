@@ -93,3 +93,24 @@ export function setupSwipes(callback: (dir: Direction) => void) {
         yDown = null;                                             
     };
 }
+export function setupKeyboard(callback: (dir: Direction) => void) {
+    function keyHandler(event: KeyboardEvent) {
+        let code = event.key;
+      
+        var dir: Direction|undefined = undefined;
+        switch (code) {
+          case "ArrowLeft": dir = "Left"; break;
+          case "ArrowRight": dir = "Right"; break;
+          case "ArrowUp": dir = "Up"; break;
+          case "ArrowDown": dir = "Down"; break;
+          default:
+        }
+      
+        if(dir != undefined) {
+          event.preventDefault()
+          callback(dir)
+        }
+      }
+      
+      window.addEventListener("keydown", keyHandler)
+}
