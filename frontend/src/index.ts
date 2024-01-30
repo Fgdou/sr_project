@@ -4,7 +4,7 @@ import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
 
-let protocol = (location.protocol == "https") ? "wss" : "ws"
+let protocol = (location.protocol == "https:") ? "wss" : "ws"
 let urls = [
   `${protocol}://${location.hostname}/ws`,
   `${protocol}://${location.hostname}:8080`
