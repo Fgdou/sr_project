@@ -87,3 +87,12 @@ function draw(message: Infos) {
 
   leaderboard.update(message, id)
 }
+
+declare global {
+  interface Window {logout: () => void}
+}
+
+window.logout = () => {
+  document.cookie = "username=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  location.reload()
+}
