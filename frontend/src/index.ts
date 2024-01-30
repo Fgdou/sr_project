@@ -22,6 +22,8 @@ let socket: WebSocket|undefined = undefined;
       // Listen for messages
       socket.addEventListener("message", (event) => {
         let message: MessageServer = JSON.parse(event.data);
+
+        console.log(message)
     
         if ("Infos" in message)
           draw(message["Infos"])
