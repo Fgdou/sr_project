@@ -3,6 +3,7 @@ import { Infos } from "../../backend/bindings/Infos";
 import {MessageClient} from "../../backend/bindings/MessageClient"
 import {MessageServer} from "../../backend/bindings/MessageServer"
 import {Canvas} from "./Canvas.js"
+import { Leaderboard } from "./leaderboard.js";
 import { getPlayer, getSocket, getUsername, setupKeyboard, setupSwipes } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
@@ -13,6 +14,7 @@ let urls = [
 
 let socket: WebSocket|undefined = undefined;
 let id: number|undefined = undefined;
+let leaderboard = new Leaderboard("leaderboard");
 
 (async () => {
   for(let url of urls){
@@ -80,4 +82,6 @@ function draw(message: Infos) {
     divUsername.textContent = player.username
     divScore.textContent = player.positions.length.toString()
   }
+
+  leaderboard.update(message, id)
 }
