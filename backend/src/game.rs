@@ -24,12 +24,14 @@ impl Game {
     }
     pub fn add_client(&mut self, mut client: Client) {
         let mut rng = rand::thread_rng();
-        let pos = Vector2{
-            x: rng.gen_range(0..self.size.x),
-            y: rng.gen_range(5..self.size.y),
-        };
-        (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, -i)));
-        self.players.push(client)
+        let pos = self.free_space(3);
+
+        if let Some(pos) = pos {
+            (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, -i)));
+            self.players.push(client);
+        } else {
+            client.send_message(&MessageServer::Error("No space available".to_string()));
+        }        
     }
     pub fn next_id(&self) -> i32 {
         (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.player.get_id() != i)).unwrap_or(0)
@@ -88,5 +90,32 @@ impl Game {
     }
     pub fn remove_client(&mut self, id: i32) {
         self.players.retain(|p| p.player.get_id() != id);
+    }
+    pub fn free_space(&self, radius: i32) -> Option<Vector2> {
+        let mut rng = rand::thread_rng();
+        for _ in 0..1000 {
+            let x = rng.gen_range(0..self.size.x);
+            let y = rng.gen_range(0..self.size.y);
+
+            let mut founded = false;
+            for x in x-radius..=x+radius {
+                for y in y-radius..=y+radius {
+                    if x < 0 || y < 0 || x >= self.size.x || y >= self.size.y {
+                        founded = true;
+                        continue;
+                    }
+
+                    let pos = Vector2::new(x, y);
+
+                    if self.players.iter().any(|p| p.player.get_positions().iter().any(|p| p == &pos)) {
+                        founded = true;
+                    }
+                }
+            }
+            if !founded {
+                return Some(Vector2::new(x, y));
+            }
+        }
+        None
     }
 }
