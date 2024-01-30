@@ -7,9 +7,10 @@
             * {
                 font-family: sans-serif;
             }
-            body {
+            body, html {
                 margin: 0;
                 padding: 0;
+                overscroll-behavior-x: none;
             }
             canvas {
                 box-shadow: 0px 0px 20px 0px rgba(0,0,0,.3);
@@ -35,6 +36,9 @@
         <div class="container">
             <div class="playerInfos"><span id="username">Username</span><span id="score">Score</span></div>
             <canvas id="canvas" height="700px" width="700px"></canvas>
+            <div>
+                <table id="leaderboard"></table>
+            </div>
         </div>
         <script>var exports = {};</script>
         <script type="module" src="frontend/src/index.js"></script>
