@@ -88,7 +88,9 @@ impl Player {
         &self.positions
     }
     pub fn set_direction(&mut self, direction: Direction) {
-        self.direction = direction
+        if self.direction.reverse() != direction {
+            self.direction = direction
+        }
     }
     pub fn add_position(&mut self, position: Vector2) {
         self.positions.push(position)
