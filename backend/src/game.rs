@@ -32,7 +32,7 @@ impl Game {
         self.players.push(client)
     }
     pub fn next_id(&self) -> i32 {
-        (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.player.get_id() != i)).unwrap()
+        (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.player.get_id() != i)).unwrap_or(0)
     }
     pub fn tick(&mut self) {
 

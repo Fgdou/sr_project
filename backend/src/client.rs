@@ -25,21 +25,28 @@ impl Client {
         match message {
             OwnedMessage::Close(_) => {
                 let message = OwnedMessage::Close(None);
-                self.writer.send_message(&message).unwrap();
+                let _ = self.writer.send_message(&message);
                 println!("Client {} disconnected", self.player.get_id());
                 return false;
             }
             OwnedMessage::Ping(ping) => {
                 let message = OwnedMessage::Pong(ping);
-                self.writer.send_message(&message).unwrap();
+                let _ = self.writer.send_message(&message);
             }
             OwnedMessage::Text(value) => {
-                let message: MessageClient = serde_json::from_str(value.as_str()).expect("Not a message");
+                let message = serde_json::from_str(value.as_str());
                 match message {
-                    MessageClient::Connection(pseudo) => {
-                        self.player.set_username(pseudo);
+                    Ok(MessageClient::Connection(pseudo)) => {
+                        let pseudo = pseudo.trim();
+                        if pseudo.len() > 20 {
+                            self.send_message(&MessageServer::Error("Username should be less than 20 characters".to_string()))
+                        } else if pseudo.chars().any(|c| !c.is_alphanumeric()) {
+                            self.send_message(&MessageServer::Error("Username should be only numbers and chars in ASCII".to_string()))
+                        } else {
+                            self.player.set_username(pseudo.to_string());
+                        }
                     },
-                    MessageClient::ChangeDirection(direction) => {
+                    Ok(MessageClient::ChangeDirection(direction)) => {
                         if self.next_move.len() > 3 {
                             self.next_move.pop();
                         }
