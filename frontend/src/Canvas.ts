@@ -2,58 +2,41 @@ import { Player } from "../../backend/bindings/Player";
 import { Vector2 } from "../../backend/bindings/Vector2";
 
 export class Canvas {
-    private playerPos: Vector2 = {x: 0, y: 0}
+    gridSize: Vector2 = {x: 1, y: 1}
+    playerPos: Vector2 = {x: 0, y: 0}
 
-    constructor(private canvas: CanvasRenderingContext2D, private canvasSize: Vector2, private cellSize: Vector2){
+    constructor(private canvas: CanvasRenderingContext2D, private size: Vector2){
     }
 
-    setPlayerPos(pos: Vector2) {
-        this.playerPos = pos
+    setGridSize(size: Vector2) {
+        this.gridSize = size
     }
-
     drawRectangle(pos: Vector2, color: string) {
+        let width = this.size.x/this.gridSize.x;
+        let height = this.size.y/this.gridSize.y;
+
         this.canvas.fillStyle = color
-        pos = this.worldToScreen(pos)
-        this.canvas.fillRect(pos.x, pos.y, this.cellSize.x, this.cellSize.y)
+        this.canvas.fillRect(pos.x*width, pos.y*height, width, height)
     }
     clear() {
         this.canvas.reset()
     }
     drawGrid() {
-        this.canvas.beginPath()
         this.canvas.strokeStyle = "#000000"
         this.canvas.lineWidth = 1
 
-        for(let i=0; i<=40; i++) {
-            let x = this.canvasSize.x/2 + (-20+i)*this.cellSize.x
-            this.canvas.moveTo(x, 0)
-            this.canvas.lineTo(x, this.canvasSize.y)
+        let width = this.size.x/this.gridSize.x;
+        let height = this.size.y/this.gridSize.y;
+
+        for(let i=0; i<=this.gridSize.x; i++) {
+            this.canvas.moveTo(width*i, 0)
+            this.canvas.lineTo(width*i, this.size.y)
         }
-        for(let i=0; i<=40; i++) {
-            let y = this.canvasSize.y/2 + (-20+i)*this.cellSize.y
-            this.canvas.moveTo(0, y)
-            this.canvas.lineTo(this.canvasSize.x, y)
+        for(let i=0; i<=this.gridSize.x; i++) {
+            this.canvas.moveTo(0, i*height)
+            this.canvas.lineTo(this.size.x, i*height)
         }
-
         this.canvas.stroke()
-        this.canvas.closePath()
-    }
-    drawBondaries(gameSize: Vector2) {
-        this.canvas.beginPath()
-        this.canvas.strokeStyle = "#ffffff"
-        this.canvas.lineWidth = 1
-
-        let upLeft = this.worldToScreen({x: 0, y: 0})
-        let bottomRight = this.worldToScreen(gameSize)
-
-        this.canvas.moveTo(upLeft.x, upLeft.y)
-        this.canvas.lineTo(upLeft.x, bottomRight.y)
-        this.canvas.lineTo(bottomRight.x, bottomRight.y)
-        this.canvas.lineTo(bottomRight.x, upLeft.y)
-        this.canvas.lineTo(upLeft.x, upLeft.y)
-
-        this.canvas.stroke()
-        this.canvas.closePath()
     }
     drawPlayer(player: Player, me: boolean) {
         let color = "gray"
@@ -74,30 +57,9 @@ export class Canvas {
         this.canvas.fillStyle = color
         this.canvas.font = `bold ${15*fontSize}px sans-serif`
         this.canvas.textAlign = "center"
+        let width = this.size.x/this.gridSize.x;
+        let height = this.size.y/this.gridSize.y;
 
-        pos.x += 0.5
-        pos.y -= .1
-        
-        pos = this.worldToScreen(pos)
-
-        this.canvas.fillText(text, pos.x, pos.y)
-    }
-    drawTextCenter(text: string, color: string, fontSize: number = 1.0) {
-        this.canvas.fillStyle = color
-        this.canvas.font = `bold ${15*fontSize}px sans-serif`
-        this.canvas.textAlign = "center"
-
-        let pos = {
-            x: this.canvasSize.x*0.5,
-            y: this.canvasSize.y
-        }
-        
-        this.canvas.fillText(text, pos.x, pos.y)
-    }
-    private worldToScreen(pos: Vector2): Vector2 {
-        return {
-            x: (pos.x - this.playerPos.x)*this.cellSize.x + this.canvasSize.x/2,
-            y: (pos.y - this.playerPos.y)*this.cellSize.y + this.canvasSize.y/2,
-        }
+        this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.1)*height)
     }
 }
