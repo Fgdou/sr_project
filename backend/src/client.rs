@@ -25,13 +25,13 @@ impl Client {
             next_move: Vec::new()
         }
     }
-    pub fn handle_message(&mut self, message: OwnedMessage) -> bool {
+    pub fn handle_message(&mut self, message: OwnedMessage) {
         match message {
             OwnedMessage::Close(_) => {
                 let message = OwnedMessage::Close(None);
                 let _ = self.writer.send_message(&message);
                 println!("Client {}:{} disconnected", self.player.get_id(), self.player.get_username());
-                return false;
+                return;
             }
             OwnedMessage::Ping(ping) => {
                 let message = OwnedMessage::Pong(ping);
@@ -63,6 +63,5 @@ impl Client {
             }
             _ => ()
         }
-        true
     }
 }
