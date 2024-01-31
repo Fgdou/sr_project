@@ -78,27 +78,28 @@ setupKeyboard(dir => {
 
 function draw(message: Infos) {
   canvas.clear()
+  canvas.setGridSize(message.size)
 
   // apples
-  message.apples.forEach(apple => canvas.drawRectangle(apple, message.size, "red"))
+  message.apples.forEach(apple => canvas.drawRectangle(apple, "red"))
 
   // players
   message.players.filter(p => p.id != id).forEach(player => {
-    canvas.drawPlayer(player, message.size, false)
+    canvas.drawPlayer(player, false)
   })
   message.players.filter(p => p.id == id).forEach(player => {
-    canvas.drawPlayer(player, message.size, true)
+    canvas.drawPlayer(player, true)
   })
 
   // grid
-  canvas.drawGrid(message.size)
+  canvas.drawGrid()
 
   // player names
   message.players
     .filter(p => p.id != id && p.state == "Running")
     .forEach(player => {
       let head = player.positions[player.positions.length-1]
-      canvas.drawText(player.username, head, message.size, "white")
+      canvas.drawText(player.username, head, "white")
     })
 
   // show info on the current player
@@ -112,7 +113,7 @@ function draw(message: Infos) {
         x: message.size.x/2,
         y: message.size.y
       }
-      canvas.drawText((player.state.Waiting/2).toString(), pos, message.size, "white", 70);
+      canvas.drawText((player.state.Waiting/2).toString(), pos, "white", 70);
     }
   }
 
