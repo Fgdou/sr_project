@@ -78,11 +78,22 @@ setupKeyboard(dir => {
 
 function draw(message: Infos) {
   canvas.clear()
+
+  // apples
   message.apples.forEach(apple => canvas.drawRectangle(apple, message.size, "red"))
-  message.players.forEach(player => {
-    canvas.drawPlayer(player, message.size, player.id == id)
+
+  // players
+  message.players.filter(p => p.id != id).forEach(player => {
+    canvas.drawPlayer(player, message.size, false)
   })
+  message.players.filter(p => p.id == id).forEach(player => {
+    canvas.drawPlayer(player, message.size, true)
+  })
+
+  // grid
   canvas.drawGrid(message.size)
+
+  // player names
   message.players
     .filter(p => p.id != id && p.state == "Running")
     .forEach(player => {
@@ -90,6 +101,7 @@ function draw(message: Infos) {
       canvas.drawText(player.username, head, message.size, "white")
     })
 
+  // show info on the current player
   let player = getPlayer(message, id)
   if(player){
     divUsername.textContent = player.username
@@ -104,6 +116,7 @@ function draw(message: Infos) {
     }
   }
 
+  // draw leaderboard
   leaderboard.update(message, id)
 }
 
