@@ -40,7 +40,6 @@ impl Game {
                     PlayerState::Running => true,
                 })
                 .map(|p| p.player.clone()).collect();
-            all_players.push(client.player.clone());
             let apples = self.apples.clone();
             client.send_message(&MessageServer::Infos(Infos{
                 apples,
