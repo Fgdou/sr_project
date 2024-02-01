@@ -5,7 +5,12 @@ export class Canvas {
     gridSize: Vector2 = {x: 1, y: 1}
     playerPos: Vector2 = {x: 0, y: 0}
 
+    crownImgElement: HTMLImageElement
+    deadImgElement: HTMLImageElement
+
     constructor(private canvas: CanvasRenderingContext2D, private size: Vector2){
+        this.crownImgElement = document.getElementById("crown") as HTMLImageElement
+        this.deadImgElement = document.getElementById("dead") as HTMLImageElement
     }
 
     setGridSize(size: Vector2) {
@@ -38,7 +43,7 @@ export class Canvas {
         }
         this.canvas.stroke()
     }
-    drawPlayer(player: Player, me: boolean) {
+    drawPlayer(player: Player, me: boolean, first: boolean) {
         let color = "gray"
         if (player.state == "Running") {
             color = "#864AF9"
@@ -55,6 +60,11 @@ export class Canvas {
             let pos = player.positions[player.positions.length-1]
             this.drawText(Math.floor(player.state.Waiting/2+0.5).toString(), {x: pos.x, y: pos.y+1}, "white", 1.7);
         }
+
+        if(player.state instanceof Object && "Dead" in player.state)
+            this.drawImage('dead', player.positions[player.positions.length-1], 'white')
+        if(first && player.state == "Running") 
+            this.drawImage('crown', player.positions[player.positions.length-1], 'white')
     }
     drawText(text: string, pos: Vector2, color: string, fontSize: number = 1.0) {
         this.canvas.fillStyle = color
@@ -64,5 +74,18 @@ export class Canvas {
         let height = this.size.y/this.gridSize.y;
 
         this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.1)*height)
+    }
+    private getImage(name: string): CanvasImageSource {
+        if(name == 'dead') return this.deadImgElement
+        if(name == 'crown') return this.crownImgElement
+        throw `image ${name} not found`
+    }
+    drawImage(name: string, pos: Vector2, color: string) {
+        let width = this.size.x/this.gridSize.x;
+        let height = this.size.y/this.gridSize.y;
+
+        this.canvas.fillStyle = color
+
+        this.canvas.drawImage(this.getImage(name), pos.x*width, pos.y*height, width, height)
     }
 }

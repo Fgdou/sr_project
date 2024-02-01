@@ -5,12 +5,13 @@ body, html {
     margin: 0;
     padding: 0;
     overscroll-behavior: none;
+    background-color: rgb(32, 32, 32);
+    color: white;
 }
 canvas {
-    box-shadow: 0px 0px 20px 0px rgba(0,0,0,.3);
-    border-radius: 20px;
     background-color: black;
-    margin: 20px 0;
+    margin: 0;
+    padding: 0;
 }
 .container {
     position: absolute;
@@ -47,3 +48,40 @@ canvas {
     text-decoration: none;
     color: red;
 }
+.canvas{
+    margin: 20px 0;
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,.3);
+    border-radius: 20px;
+    position: relative;
+    display: inline-block;
+    padding: 0;
+    height: 700px;
+    overflow: hidden;
+}
+
+@keyframes zoomStart {
+    0% {
+        transform: scale(10);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+
+
+.canvas::after{
+    content: "";
+    position: absolute;
+    display: block;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background-image: url(./img/logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    transform: scale(0);
+    animation: zoomStart 1s cubic-bezier(0.01, 1.26, 0.55, 0.68);
+}
+

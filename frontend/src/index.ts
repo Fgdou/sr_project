@@ -40,11 +40,12 @@ function draw(message: Infos) {
   message.apples.forEach(apple => canvas.drawRectangle(apple, "red"))
 
   // players
+  let first = (message.players.length != 0) ? message.players.sort((a, b) => b.positions.length - a.positions.length)[0].id : undefined
   message.players.filter(p => p.id != client.getId()).forEach(player => {
-    canvas.drawPlayer(player, false)
+    canvas.drawPlayer(player, false, first == player.id)
   })
   message.players.filter(p => p.id == client.getId()).forEach(player => {
-    canvas.drawPlayer(player, true)
+    canvas.drawPlayer(player, true, first == player.id)
   })
 
   // grid
@@ -61,7 +62,7 @@ function draw(message: Infos) {
   // show info on the current player
   let player = getPlayer(message, client.getId())
   if(player){
-    divUsername.textContent = `${player.username} (${client.averagePing()}ms)`
+    divUsername.innerHTML = `<b>${player.username}</b> (${Math.floor(client.averagePing())}ms)`
     divScore.textContent = player.positions.length.toString()
 
     if(player.state instanceof Object && "Waiting" in player.state && player.state.Waiting%2 == 0) {
