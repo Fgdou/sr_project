@@ -11,7 +11,7 @@ export class Game{
     update(message: Event) {
         if ("RemoveApple" in message) {
             let apple = message.RemoveApple
-            this.infos.apples = this.infos.apples.filter(a => a.x != apple.x && a.y != apple.y)
+            this.infos.apples = this.infos.apples.filter(a => !(a.x == apple.x && a.y == apple.y))
         }
         if ("AddApple" in message) {
             this.infos.apples.push(message.AddApple)
@@ -34,7 +34,7 @@ export class Game{
     }
     tick() {
         this.infos.players.forEach(p => {
-            if(this.lastStates.get(p.id) != "Running") return;
+            if(p.state != "Running" || this.lastStates.get(p.id) != "Running") return;
 
             let dir = {x: 0, y: -1}
             if(p.direction == 'Down') {

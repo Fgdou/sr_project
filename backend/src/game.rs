@@ -7,7 +7,8 @@ pub struct Game {
     size: Vector2,
     apples: Vec<Vector2>,
     last_players: Vec<Player>,
-    last_apples: Vec<Vector2>
+    last_apples: Vec<Vector2>,
+    diffs: Vec<Event>,
 }
 
 impl Game {
@@ -18,6 +19,7 @@ impl Game {
             apples: Vec::new(),
             last_apples: Vec::new(),
             last_players: Vec::new(),
+            diffs: Vec::new(),
         }
     }
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
@@ -45,6 +47,7 @@ impl Game {
                 players: all_players,
                 size: self.size.clone()
             }));
+            self.diffs.push(Event::AddPlayer(client.player.clone()));
             self.players.push(client);
         } else {
             client.send_message(&MessageServer::Error("No space available".to_string()));
@@ -54,8 +57,6 @@ impl Game {
         (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.player.get_id() != i)).unwrap_or(0)
     }
     pub fn tick(&mut self) {
-        let mut diff = Vec::new();
-
         // apples
         while self.apples.len() < 10 {
             let mut rng = rand::thread_rng();
@@ -65,7 +66,7 @@ impl Game {
             };
             if self.apples.iter().all(|a| a != &pos) {
                 self.apples.push(pos.clone());
-                diff.push(Event::AddApple(pos));
+                self.diffs.push(Event::AddApple(pos));
             }
         }
 
@@ -90,7 +91,7 @@ impl Game {
             let player = self.players.iter_mut().find(|p| p.player.intersect_apple(apple));
             if let Some(player) = player {
                 player.player.increase();
-                diff.push(Event::RemoveApple(apple.clone()));
+                self.diffs.push(Event::RemoveApple(apple.clone()));
                 false
             } else {
                 true
@@ -98,12 +99,13 @@ impl Game {
         });
 
         // send message
-        diff.extend(self.players.iter_mut().map(|p| p.player.diff()).flatten());
+        self.diffs.extend(self.players.iter_mut().map(|p| p.player.diff()).flatten());
 
         
         self.players.iter_mut().for_each(|p| {
-            p.send_message(&MessageServer::ChangeInfos(diff.clone()))
+            p.send_message(&MessageServer::ChangeInfos(self.diffs.clone()))
         });
+        self.diffs.clear();
 
         // update history
         self.last_apples = self.apples.clone();
@@ -111,6 +113,7 @@ impl Game {
     }
     pub fn remove_client(&mut self, id: i32) {
         self.players.retain(|p| p.player.get_id() != id);
+        self.diffs.push(Event::RemovePlayer(id))
     }
     pub fn free_space(&self, radius: i32) -> Option<Vector2> {
         let mut rng = rand::thread_rng();
