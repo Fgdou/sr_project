@@ -161,12 +161,16 @@ impl Game {
                 let message = serde_json::from_str(value.as_str());
                 match message {
                     Ok(MessageClient::Connection(pseudo)) => {
+                        let existing_players: Vec<String> = self.players.iter().map(|p| p.player.get_username().clone()).collect();
+
                         let client = self.get_client(player_id).unwrap();
                         let pseudo = pseudo.trim();
-                        if pseudo.len() > 10 {
-                            client.send_message(&MessageServer::Error("Username should be less than 10 characters".to_string()))
+                        if pseudo.len() > 10 || pseudo.len() < 4 {
+                            client.send_message(&MessageServer::Error("Username should be between 4 and 10 characters".to_string()))
                         } else if pseudo.chars().any(|c| !c.is_alphanumeric()) {
-                            client.send_message(&MessageServer::Error("Username should be only numbers and chars in ASCII".to_string()))
+                            client.send_message(&MessageServer::Error("Username should be only numbers and letters".to_string()))
+                        } else if existing_players.contains(&pseudo.to_string()) {
+                            client.send_message(&MessageServer::Error("Username already exists".to_string()))
                         } else {
                             client.player.set_username(pseudo.to_string());
                         }
