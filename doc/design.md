@@ -28,7 +28,7 @@ flowchart TB
 
 subgraph Docker
 Nginx[[Nginx :80]] -- / --> Frontend
-Nginx -- /websocket --> Backend
+Nginx -- /ws --> Backend
 
 Frontend -.-> Objects
 Backend -.-> Objects
