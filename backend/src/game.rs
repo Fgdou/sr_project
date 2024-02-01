@@ -27,7 +27,7 @@ impl Game {
         let pos = self.free_space(3);
 
         if let Some(pos) = pos {
-            (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, -i)));
+            (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, i)));
             self.players.push(client);
         } else {
             client.send_message(&MessageServer::Error("No space available".to_string()));
@@ -78,7 +78,15 @@ impl Game {
         });
 
         // send message
-        let all_players: Vec<Player> = self.players.iter().map(|p| p.player.clone()).collect();
+        let all_players: Vec<Player> = self.players.iter()
+            .filter(|p| match p.player.get_state() {
+                PlayerState::Waiting(_) => true,
+                PlayerState::Connecting => false,
+                PlayerState::Dead(0) => false,
+                PlayerState::Dead(_) => true,
+                PlayerState::Running => true,
+            })
+            .map(|p| p.player.clone()).collect();
         let apples = self.apples.clone();
         self.players.iter_mut().for_each(|p| {
             p.send_message(&MessageServer::Infos(Infos{
