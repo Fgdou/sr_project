@@ -48,6 +48,10 @@ The frontend will draw the players sent by the server. It will also send every k
 ### Ping reliability
 The `Client` classcalculate the average time difference that the network takes. With  this estimation, it can smooth out the receiving of packet, so that the game seems smoother.
 
+## Docker
+Docker allows this app to be run on any devices. I chose to put the front and backend in the same docker, to be able to run it with a really simple command : `docker run app`. It runs the front with nginx, and the back with a binary. The image is small : 110MB.
+
+
 # Dependencies
 - webassembly : run the rust code in the browser and interact with the page
 - websocket : communicate between the front and back
