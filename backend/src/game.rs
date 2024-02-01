@@ -29,7 +29,7 @@ impl Game {
         if let Some(pos) = pos {
             (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, i)));
 
-            let all_players: Vec<Player> = self.players.iter()
+            let mut all_players: Vec<Player> = self.players.iter()
                 .filter(|p| match p.player.get_state() {
                     PlayerState::Waiting(_) => true,
                     PlayerState::Connecting => false,
@@ -38,6 +38,7 @@ impl Game {
                     PlayerState::Running => true,
                 })
                 .map(|p| p.player.clone()).collect();
+            all_players.push(client.player.clone());
             let apples = self.apples.clone();
             client.send_message(&MessageServer::Infos(Infos{
                 apples,
