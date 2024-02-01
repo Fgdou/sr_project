@@ -16,7 +16,7 @@ export class Client {
     private messageHandler: MessageTPSSmoother<Infos>
 
     constructor(callback: (message: Infos) => void, username: string) {
-        this.messageHandler = new MessageTPSSmoother(callback, true);
+        this.messageHandler = new MessageTPSSmoother(callback);
 
         (async () => {
             for(let url of urls){
