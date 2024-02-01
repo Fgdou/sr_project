@@ -31,6 +31,9 @@ export class Game{
         if ('ChangeStatePlayer' in message) {
             this.infos.players.filter(p => p.id == message.ChangeStatePlayer.id).forEach(p => p.state = message.ChangeStatePlayer.state)
         }
+        if ('SetUsername' in message) {
+            this.infos.players.filter(p => p.id == message.SetUsername.id).forEach(p => p.username = message.SetUsername.name)
+        }
     }
     tick() {
         this.infos.players.forEach(p => {

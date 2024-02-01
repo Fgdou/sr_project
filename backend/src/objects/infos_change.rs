@@ -14,4 +14,5 @@ pub enum Event {
     RemovePlayer(i32),
     MovePlayer{dir: Direction, id: i32},
     ChangeStatePlayer{state: PlayerState, id: i32},
+    SetUsername{id: i32, name: String}
 }

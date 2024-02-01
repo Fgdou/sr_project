@@ -92,8 +92,9 @@ impl Player {
     pub fn set_username(&mut self, username: String) {
         if let PlayerState::Connecting = self.state {
             self.set_state(PlayerState::Waiting(12));
+            self.username = username.clone();
+            self.diffs.push(Event::SetUsername { id: self.id, name: username })
         }
-        self.username = username;
     }
     pub fn get_id(&self) -> i32 {
         self.id
