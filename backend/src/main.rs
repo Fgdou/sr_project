@@ -50,7 +50,11 @@ fn main() {
             for message in receiver.incoming_messages() {
                 if let Ok(message) = message {
                     let _ = game.lock().map(|mut game| {
-                        let _ = game.get_client(id).map(|p| p.handle_message(message));
+                        let res = game.get_client(id).map(|p| p.handle_message(message));
+                        if let Some(true) = res {
+                            let infos = game.get_infos();
+                            game.get_client(id).map(|c| c.send_message(&MessageServer::Infos(infos)));
+                        }
                     });
                 } else {
                     let _ = game.lock().map(|mut g| g.remove_client(id));

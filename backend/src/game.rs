@@ -9,6 +9,7 @@ pub struct Game {
     last_players: Vec<Player>,
     last_apples: Vec<Vector2>,
     diffs: Vec<Event>,
+    message_count: i32,
 }
 
 impl Game {
@@ -20,10 +21,23 @@ impl Game {
             last_apples: Vec::new(),
             last_players: Vec::new(),
             diffs: Vec::new(),
+            message_count: 0,
         }
     }
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
         self.players.iter_mut().find(|p| p.player.get_id() == id)
+    }
+    pub fn get_infos(&mut self) -> Infos {
+        let all_players: Vec<Player> = self.players.iter()
+            .map(|p| p.player.clone()).collect();
+        let apples = self.apples.clone();
+
+        Infos{
+            apples,
+            players: all_players,
+            size: self.size.clone(),
+            message_count: self.message_count
+        }
     }
     pub fn add_client(&mut self, mut client: Client) {
         let pos = self.free_space(3);
@@ -31,21 +45,7 @@ impl Game {
         if let Some(pos) = pos {
             (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, i)));
 
-            let mut all_players: Vec<Player> = self.players.iter()
-                .filter(|p| match p.player.get_state() {
-                    PlayerState::Waiting(_) => true,
-                    PlayerState::Connecting => false,
-                    PlayerState::Dead(0) => false,
-                    PlayerState::Dead(_) => true,
-                    PlayerState::Running => true,
-                })
-                .map(|p| p.player.clone()).collect();
-            let apples = self.apples.clone();
-            client.send_message(&MessageServer::Infos(Infos{
-                apples,
-                players: all_players,
-                size: self.size.clone()
-            }));
+            client.send_message(&MessageServer::Infos(self.get_infos()));
             self.diffs.push(Event::AddPlayer(client.player.clone()));
             self.players.push(client);
         } else {
@@ -102,13 +102,14 @@ impl Game {
 
         
         self.players.iter_mut().for_each(|p| {
-            p.send_message(&MessageServer::ChangeInfos(self.diffs.clone()))
+            p.send_message(&MessageServer::ChangeInfos{events: self.diffs.clone(), count: self.message_count})
         });
         self.diffs.clear();
 
         // update history
         self.last_apples = self.apples.clone();
         self.last_players = self.players.iter().map(|p| p.player.clone()).collect();
+        self.message_count += 1;
     }
     pub fn remove_client(&mut self, id: i32) {
         self.players.retain(|p| p.player.get_id() != id);
