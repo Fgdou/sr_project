@@ -51,12 +51,12 @@ export class Canvas {
     }
     drawText(text: string, pos: Vector2, color: string, fontSize: number = 1.0) {
         this.canvas.fillStyle = color
-        this.canvas.font = `bold ${15*fontSize}px sans-serif`
+        this.canvas.font = `bold ${22*fontSize}px sans-serif`
         this.canvas.textAlign = "center"
         let width = this.size.x/this.gridSize.x;
         let height = this.size.y/this.gridSize.y;
 
-        this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.2)*height)
+        this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.1)*height)
     }
     private getImage(name: string): CanvasImageSource {
         if(name == 'dead') return this.deadImgElement
