@@ -9,5 +9,6 @@ use super::{Player, Vector2};
 pub struct Infos {
     pub players: Vec<Player>,
     pub apples: Vec<Vector2>,
-    pub size: Vector2
+    pub size: Vector2,
+    pub message_count: i32,
 }

@@ -1,6 +1,7 @@
 import { Infos } from "../../backend/bindings/Infos";
 import {Canvas} from "./Canvas.js"
 import { Client } from "./Client.js";
+import { Game } from "./Game.js";
 import { registerLoginCallback } from "./LoginWindow.js";
 import { Leaderboard } from "./leaderboard.js";
 import { getPlayer, getUsername, setupKeyboard, setupSwipes } from "./utils.js";
@@ -16,6 +17,7 @@ if(username != undefined) {
 
 function startGame(username: string) {
   document.cookie = `username=${username}`
+  document.getElementById("login")?.classList.remove("open")
   document.getElementById("game")?.classList.add("open")
 
   let leaderboard = new Leaderboard("leaderboard");
@@ -30,7 +32,21 @@ function startGame(username: string) {
   let divUsername = document.getElementById("username_name") as HTMLSpanElement
   let divScore = document.getElementById("score") as HTMLSpanElement
 
-  let client = new Client(draw, username);
+  let game: Game|undefined = undefined;
+  let client = new Client(infos => {
+    game = new Game(infos)
+    draw(infos)
+  }, change => {
+    change.forEach(c => game?.update(c))
+    game?.tick()
+
+
+    let infos = game?.getInfos()
+    if(infos != undefined)
+      draw(infos)
+  }, username);
+
+
 
   setupSwipes(dir => {
     client.sendMessage({
@@ -52,15 +68,12 @@ function startGame(username: string) {
   
     // players
     let first = (message.players.length != 0) ? message.players.sort((a, b) => b.positions.length - a.positions.length)[0].id : undefined
-    message.players.filter(p => p.id != client.getId()).forEach(player => {
+    message.players.filter(p => p.id != client.getId() && !(p.state instanceof Object && 'Dead' in p.state && p.state.Dead == 0)).forEach(player => {
       canvas.drawPlayer(player, false, first == player.id)
     })
     message.players.filter(p => p.id == client.getId()).forEach(player => {
       canvas.drawPlayer(player, true, first == player.id)
     })
-  
-    // grid
-    canvas.drawGrid()
   
     // player names
     message.players

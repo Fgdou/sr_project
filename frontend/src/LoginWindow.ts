@@ -8,7 +8,6 @@ export function registerLoginCallback(callback: (username: string) => void) {
 
         if(username){
             callback(username?.toString())
-            document.getElementById("login")?.classList.remove("open")
         }
     })
 }

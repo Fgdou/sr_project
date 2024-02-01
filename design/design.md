@@ -42,11 +42,20 @@ Client --> Docker
 ## Backend
 It will handle all the game logic. The position and the direction is stored here. It will receive the command from the users for the direction, and send the position of everyone and the apple.
 
+### XSS Attacks
+When I first tried my game with my friends, they started putting html elements in the username... So it caused issues. So I implemented 2 conditions :
+- must be 10 characters max
+- must be only alphanumeric
+
 ## Frontend
 The frontend will draw the players sent by the server. It will also send every keys sent by the user.
 
 ### Ping reliability
 The `Client` classcalculate the average time difference that the network takes. With  this estimation, it can smooth out the receiving of packet, so that the game seems smoother.
+
+## Docker
+Docker allows this app to be run on any devices. I chose to put the front and backend in the same docker, to be able to run it with a really simple command : `docker run app`. It runs the front with nginx, and the back with a binary. The image is small : 110MB.
+
 
 # Dependencies
 - webassembly : run the rust code in the browser and interact with the page

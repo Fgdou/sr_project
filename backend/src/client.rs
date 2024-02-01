@@ -1,8 +1,8 @@
-use std::net::TcpStream;
+use std::{net::TcpStream, sync::Mutex};
 
 use websocket::{sync::Writer, OwnedMessage};
 
-use crate::objects::{Direction, MessageClient, MessageServer, Player};
+use crate::{game::Game, objects::{Direction, MessageClient, MessageServer, Player}};
 
 pub struct Client {
     pub player: Player,
@@ -25,17 +25,18 @@ impl Client {
             next_move: Vec::new()
         }
     }
-    pub fn handle_message(&mut self, message: OwnedMessage) {
+    pub fn handle_message(&mut self, message: OwnedMessage) -> bool {
         match message {
             OwnedMessage::Close(_) => {
                 let message = OwnedMessage::Close(None);
                 let _ = self.writer.send_message(&message);
                 println!("Client {}:{} disconnected", self.player.get_id(), self.player.get_username());
-                return;
+                return false;
             }
             OwnedMessage::Ping(ping) => {
                 let message = OwnedMessage::Pong(ping);
                 let _ = self.writer.send_message(&message);
+                false
             }
             OwnedMessage::Text(value) => {
                 let message = serde_json::from_str(value.as_str());
@@ -49,19 +50,25 @@ impl Client {
                         } else {
                             self.player.set_username(pseudo.to_string());
                         }
+                        false
                     },
                     Ok(MessageClient::ChangeDirection(direction)) => {
                         if self.next_move.len() > 3 {
                             self.next_move.pop();
                         }
                         self.next_move.insert(0, direction);
+                        false
                     },
-                    _ => {
-                        self.send_message(&MessageServer::Error("Fail to interpret message".to_string()))
+                    Ok(MessageClient::ResendAll) => {
+                        true
+                    }
+                    Err(_) => {
+                        self.send_message(&MessageServer::Error("Fail to interpret message".to_string()));
+                        false
                     }
                 }
             }
-            _ => ()
+            _ => false
         }
     }
 }

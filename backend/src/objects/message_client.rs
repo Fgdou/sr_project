@@ -8,5 +8,6 @@ use super::Direction;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum MessageClient {
     Connection(String),
-    ChangeDirection(Direction)
+    ChangeDirection(Direction),
+    ResendAll,
 }

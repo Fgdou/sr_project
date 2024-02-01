@@ -5,24 +5,27 @@ body, html {
     margin: 0;
     padding: 0;
     overscroll-behavior: none;
-    background-color: rgb(32, 32, 32);
     color: white;
+    background-image: url(img/dot.svg);
+    background-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+body, html, canvas, input {
+    background-color: rgb(32, 32, 32);
 }
 canvas {
-    background-color: black;
+    background-repeat: repeat;
     margin: 0;
     padding: 0;
 }
 .container {
-    position: absolute;
-    display: inline-block;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     display: none;
 }
 .container.open{
-    display: block;
+    display: flex;
 }
 .playerInfos {
     display: flex;
@@ -71,7 +74,6 @@ canvas {
     transform: scale(1.5) rotate(1080deg);
 }
 #login {
-    display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -99,9 +101,9 @@ canvas {
     box-shadow: 0 0 10px 0px rgba(0,0,0,.3);
     margin: 10px;
     border-radius: 30px;
+    background-color: inherit;
 }
 #login input {
-    background: none;
     border: none;
     color: inherit;
     font-size: inherit;
@@ -110,6 +112,10 @@ canvas {
 }
 #login input:focus {
     outline: none;
+}
+
+#game {
+    flex-direction: column;
 }
 
 @keyframes zoomStart {
