@@ -1,6 +1,7 @@
 use rand::Rng;
+use websocket::OwnedMessage;
 
-use crate::{client::Client, objects::{Event, Infos, MessageServer, Player, PlayerState, Vector2}};
+use crate::{client::Client, objects::{Event, Infos, MessageClient, MessageServer, Player, PlayerState, Vector2}};
 
 pub struct Game {
     players: Vec<Client>,
@@ -27,7 +28,7 @@ impl Game {
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
         self.players.iter_mut().find(|p| p.player.get_id() == id)
     }
-    pub fn get_infos(&mut self) -> Infos {
+    pub fn get_infos(&self) -> Infos {
         let all_players: Vec<Player> = self.players.iter()
             .map(|p| p.player.clone()).collect();
         let apples = self.apples.clone();
@@ -141,5 +142,58 @@ impl Game {
             }
         }
         None
+    }
+    pub fn handle_message(&mut self, message: OwnedMessage, player_id: i32) {
+        match message {
+            OwnedMessage::Close(_) => {
+                let client = self.get_client(player_id).unwrap();
+                let message = OwnedMessage::Close(None);
+                let _ = client.writer.send_message(&message);
+                println!("Client {}:{} disconnected", client.player.get_id(), client.player.get_username());
+                return;
+            }
+            OwnedMessage::Ping(ping) => {
+                let client = self.get_client(player_id).unwrap();
+                let message = OwnedMessage::Pong(ping);
+                let _ = client.writer.send_message(&message);
+            }
+            OwnedMessage::Text(value) => {
+                let message = serde_json::from_str(value.as_str());
+                match message {
+                    Ok(MessageClient::Connection(pseudo)) => {
+                        let existing_players: Vec<String> = self.players.iter().map(|p| p.player.get_username().clone()).collect();
+
+                        let client = self.get_client(player_id).unwrap();
+                        let pseudo = pseudo.trim();
+                        if pseudo.len() > 10 || pseudo.len() < 4 {
+                            client.send_message(&MessageServer::Error("Username should be between 4 and 10 characters".to_string()))
+                        } else if pseudo.chars().any(|c| !c.is_alphanumeric()) {
+                            client.send_message(&MessageServer::Error("Username should be only numbers and letters".to_string()))
+                        } else if existing_players.contains(&pseudo.to_string()) {
+                            client.send_message(&MessageServer::Error("Username already exists".to_string()))
+                        } else {
+                            client.player.set_username(pseudo.to_string());
+                        }
+                    },
+                    Ok(MessageClient::ChangeDirection(direction)) => {
+                        let client = self.get_client(player_id).unwrap();
+                        if client.next_move.len() > 3 {
+                            client.next_move.pop();
+                        }
+                        client.next_move.insert(0, direction);
+                    },
+                    Ok(MessageClient::ResendAll) => {
+                        let infos = self.get_infos();
+                        let client = self.get_client(player_id).unwrap();
+                        client.send_message(&MessageServer::Infos(infos))
+                    }
+                    Err(_) => {
+                        let client = self.get_client(player_id).unwrap();
+                        client.send_message(&MessageServer::Error("Fail to interpret message".to_string()));
+                    }
+                }
+            }
+            _ => ()
+        }
     }
 }
