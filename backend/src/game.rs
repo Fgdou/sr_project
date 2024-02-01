@@ -78,7 +78,15 @@ impl Game {
         });
 
         // send message
-        let all_players: Vec<Player> = self.players.iter().map(|p| p.player.clone()).collect();
+        let all_players: Vec<Player> = self.players.iter()
+            .filter(|p| match p.player.get_state() {
+                PlayerState::Waiting(_) => true,
+                PlayerState::Connecting => false,
+                PlayerState::Dead(0) => false,
+                PlayerState::Dead(_) => true,
+                PlayerState::Running => true,
+            })
+            .map(|p| p.player.clone()).collect();
         let apples = self.apples.clone();
         self.players.iter_mut().for_each(|p| {
             p.send_message(&MessageServer::Infos(Infos{

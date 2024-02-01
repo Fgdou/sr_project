@@ -19,7 +19,7 @@ pub struct Player {
 pub enum PlayerState {
     Waiting(i32),
     Connecting,
-    Dead,
+    Dead(i32),
     Running
 }
 
@@ -35,12 +35,11 @@ impl Player {
     }
     pub fn update(&mut self, size: &Vector2) {
         match self.state {
+            PlayerState::Waiting(1) => {
+                self.state = PlayerState::Running
+            }
             PlayerState::Waiting(n) => {
-                self.state = if n > 1 {
-                    PlayerState::Waiting(n-1)
-                } else {
-                    PlayerState::Running
-                }
+                self.state = PlayerState::Waiting(n-1)
             },
             PlayerState::Running => {
                 let dir = match self.direction {
@@ -57,7 +56,11 @@ impl Player {
                     self.positions.remove(0);
                 };
             },
-            _ => ()
+            PlayerState::Dead(0) => {},
+            PlayerState::Dead(n) => {
+                self.state = PlayerState::Dead(n-1)
+            }
+            PlayerState::Connecting => {},
         }
     }
     pub fn increase(&mut self) {
@@ -76,7 +79,7 @@ impl Player {
     }
     pub fn kill(&mut self) {
         if self.state == PlayerState::Running {
-            self.state = PlayerState::Dead
+            self.state = PlayerState::Dead(12)
         }
     }
     pub fn set_username(&mut self, username: String) {

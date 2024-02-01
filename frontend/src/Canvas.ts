@@ -43,7 +43,7 @@ export class Canvas {
         if (player.state == "Running") {
             color = "#864AF9"
         }
-        if(me && player.state != "Dead") {
+        if(me && !(player.state instanceof Object && "Dead" in player.state)) {
             color = "#0dce74"
         }
 
