@@ -37,7 +37,8 @@ export class Game{
     }
     tick() {
         this.infos.players.forEach(p => {
-            if(p.state != "Running" || this.lastStates.get(p.id) != "Running") return;
+            let last = this.lastStates.get(p.id)
+            if(p.state != "Running" || last != undefined && last != "Running") return;
 
             let dir = {x: 0, y: -1}
             if(p.direction == 'Down') {
