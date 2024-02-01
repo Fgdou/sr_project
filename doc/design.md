@@ -14,11 +14,8 @@ The idea is to create a snake game, but multiplayer. The idea is to copy the cla
 # Architecture
 The architecture is **frontend - backend**. The project can be run with a `docker-compose` file that runs everything. The pipeline allows the build and test of the project at every commit, and deploy the main branch.
 
-The backend will be written in **Rust**, and the frontend in **Typescript**. 
+The backend is written in **Rust**, and the frontend in **Typescript**. They communicate via **WebSocket**.
 
-Rust is usefull to have a performant backend. It is also very handy for a lot of usecase in this project, because it is  a functional programming language. Many `enum` are used to transfer data accross the front and backend.
-
-Typscript will be the easiest for frontend development but will still allow for type checking. I chose to not work with any frameworks, because this is a simple frontend.
 
 ```mermaid
 ---
@@ -34,7 +31,7 @@ Frontend -.-> Objects
 Backend -.-> Objects
 end
 
-Client --> Docker
+Client -. http .-> Docker
 ```
 
 ```mermaid
@@ -65,21 +62,27 @@ Frontend ->> Frontend: User Input
 Frontend ->> Backend: Direction
 ```
 
+## Backend
+Rust is usefull to have a performant backend. It is also very handy for a lot of usecase in this project, because it is  a functional programming language. Many `enum` are used to transfer data accross the front and backend.
+
+The Backend handles all the game logic. The position and the direction is stored here. It receives the command from the users for the direction, and first sends the position of everyone and the apple.
+
+## Frontend
+Typscript will be the easiest for frontend development but will still allow for type checking. I chose to not work with any frameworks, because this is a simple frontend.
+
+The frontend will draw the players sent by the server and send every keys sent by the user. It will also execute the game logic for the client, as the server will only send basic modifications of the game : 
+- change direction of the player
+- new player
+- eating an apple
+
 ## Link between Frontend and Backend
+WeSocket is a common way to communication between a client and a server. It works exactly like TCP, but over HTTP. It has reliability and orderness, but is easier to implement in a web-browser.
+
 The rust crate `ts-rs` provides a compilation from the Rust objects to typescript. In that way, we can use in the frontend the exact objects defined in the backend.
 
 The messages are the followings :
 - send the entier game state via the [`Infos`](../backend/src/objects/infos.rs) object
 - send only the changes via the [`Event`](../backend/src/objects/infos_change.rs) object
-
-## Backend
-It handles all the game logic. The position and the direction is stored here. It receives the command from the users for the direction, and first sends the position of everyone and the apple.
-
-## Frontend
-The frontend will draw the players sent by the server and send every keys sent by the user. It will also execute the game logic for the client, as the server will only send basic modifications of the game : 
-- change direction of the player
-- new player
-- eating an apple
 
 ## Docker
 Docker allows this app to be run on any devices. I chose to put the front and backend in the same docker, to be able to run it with a really simple command : `docker run app`. It runs the front with nginx, and the back with a binary. The image is small : 110MB.
