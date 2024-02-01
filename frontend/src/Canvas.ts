@@ -41,14 +41,17 @@ export class Canvas {
     drawPlayer(player: Player, me: boolean) {
         let color = "gray"
         if (player.state == "Running") {
-            color = (me) ? "#0dce74" : "#864AF9"
+            color = "#864AF9"
+        }
+        if(me && player.state != "Dead") {
+            color = "#0dce74"
         }
 
         player.positions.forEach(p => {
             this.drawRectangle(p, color)
         })
 
-        if(player.state instanceof Object && "Waiting" in player.state && !me) {
+        if(player.state instanceof Object && "Waiting" in player.state) {
             let pos = player.positions[player.positions.length-1]
             this.drawText(Math.floor(player.state.Waiting/2+0.5).toString(), {x: pos.x, y: pos.y+1}, "white", 1.7);
         }
