@@ -21,27 +21,10 @@ export class Canvas {
         let height = this.size.y/this.gridSize.y;
 
         this.canvas.fillStyle = color
-        this.canvas.fillRect(pos.x*width, pos.y*height, width, height)
+        this.canvas.fillRect(pos.x*width+2, pos.y*height+2, width-4, height-4)
     }
     clear() {
         this.canvas.reset()
-    }
-    drawGrid() {
-        this.canvas.strokeStyle = "#000000"
-        this.canvas.lineWidth = 1
-
-        let width = this.size.x/this.gridSize.x;
-        let height = this.size.y/this.gridSize.y;
-
-        for(let i=0; i<=this.gridSize.x; i++) {
-            this.canvas.moveTo(width*i, 0)
-            this.canvas.lineTo(width*i, this.size.y)
-        }
-        for(let i=0; i<=this.gridSize.x; i++) {
-            this.canvas.moveTo(0, i*height)
-            this.canvas.lineTo(this.size.x, i*height)
-        }
-        this.canvas.stroke()
     }
     drawPlayer(player: Player, me: boolean, first: boolean) {
         let color = "gray"

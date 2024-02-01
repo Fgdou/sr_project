@@ -16,6 +16,7 @@ if(username != undefined) {
 
 function startGame(username: string) {
   document.cookie = `username=${username}`
+  document.getElementById("login")?.classList.remove("open")
   document.getElementById("game")?.classList.add("open")
 
   let leaderboard = new Leaderboard("leaderboard");
@@ -58,9 +59,6 @@ function startGame(username: string) {
     message.players.filter(p => p.id == client.getId()).forEach(player => {
       canvas.drawPlayer(player, true, first == player.id)
     })
-  
-    // grid
-    canvas.drawGrid()
   
     // player names
     message.players
