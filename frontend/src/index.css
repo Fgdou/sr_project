@@ -176,3 +176,14 @@ canvas, .canvas {
 .error.open {
     transform: translateX(-50%) translateY(0);
 }
+
+footer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px 10px;
+}
+footer a {
+    color: white;
+    font-weight: bold;
+}
