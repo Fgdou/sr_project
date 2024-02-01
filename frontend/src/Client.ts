@@ -1,3 +1,4 @@
+import { Event } from "../../backend/bindings/Event.js";
 import { Infos } from "../../backend/bindings/Infos.js";
 import { MessageClient } from "../../backend/bindings/MessageClient.js";
 import { MessageServer } from "../../backend/bindings/MessageServer.js";
@@ -13,10 +14,10 @@ let urls = [
 export class Client {
     private socket: WebSocket | undefined = undefined
     private id: number|undefined = undefined
-    private messageHandler: MessageTPSSmoother<Infos>
+    private messageHandler: MessageTPSSmoother<Event[]>
 
-    constructor(callback: (message: Infos) => void, username: string) {
-        this.messageHandler = new MessageTPSSmoother(callback);
+    constructor(callbackInfos: (message: Infos) => void, callbackChanges: (Message: Event[]) => void, username: string) {
+        this.messageHandler = new MessageTPSSmoother(callbackChanges, true);
 
         (async () => {
             for(let url of urls){
@@ -30,7 +31,9 @@ export class Client {
                         console.log(message)
                     
                         if ("Infos" in message)
-                            this.messageHandler.call(message.Infos)
+                            callbackInfos(message.Infos)
+                        if ("ChangeInfos" in message)
+                            this.messageHandler.call(message.ChangeInfos)
                         if ("SetId" in message)
                             this.id = message["SetId"]
                         if ("Error" in message)
