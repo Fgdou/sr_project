@@ -1,6 +1,7 @@
 import { Infos } from "../../backend/bindings/Infos.js";
 import { MessageClient } from "../../backend/bindings/MessageClient.js";
 import { MessageServer } from "../../backend/bindings/MessageServer.js";
+import { MessageTPSSmoother } from "./MessageTPSSmoother.js";
 import { getSocket, getUsername } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
@@ -12,10 +13,11 @@ let urls = [
 export class Client {
     private socket: WebSocket | undefined = undefined
     private id: number|undefined = undefined
-    private last = 0
-    private delays: number[] = []
+    private messageHandler: MessageTPSSmoother<Infos>
 
-    constructor(private callback: (message: Infos) => void) {
+    constructor(callback: (message: Infos) => void) {
+        this.messageHandler = new MessageTPSSmoother(callback, true);
+
         (async () => {
             for(let url of urls){
                 try{
@@ -28,7 +30,7 @@ export class Client {
                         console.log(message)
                     
                         if ("Infos" in message)
-                            this.handleMessage(message.Infos)
+                            this.messageHandler.call(message.Infos)
                         if ("SetId" in message)
                             this.id = message["SetId"]
                         if ("Error" in message)
@@ -41,7 +43,6 @@ export class Client {
                     this.sendMessage({
                         Connection: pseudo
                     })
-                    this.last = Date.now()
                     break
                 } catch (e) {}
             }
@@ -60,22 +61,6 @@ export class Client {
         window.logout()
     }
     averagePing(): number {
-        if (this.delays.length == 0) return 0
-        return this.delays.map(n => n/this.delays.length).reduce((prev, n) => prev+n)
-    }
-    private handleMessage(message: Infos) {
-        let now = Date.now()
-
-        let ping = Math.max(now-this.last-300, 0)
-        this.last = now
-        let diff = this.averagePing()*2-ping
-
-        if (ping > 10)
-        this.delays.push(ping)
-
-        diff = Math.max(0, diff)
-
-
-        setTimeout((m: Infos) => this.callback(m), diff, message)
+        return this.messageHandler.averagePing()
     }
 }
