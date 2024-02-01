@@ -1,13 +1,13 @@
 # Design
 
-## Idea
+# Idea
 The idea is to create a snake game, but multiplayer. The idea is to copy the classical game :
 - a fixed size grid
 - only one apple for everyone
 - movement every time $t$
 - every apple increment the size of the player
 
-## Architecture
+# Architecture
 The architecture is frontend - backend. The project can be run with a `docker-compose` file that runs everything. The pipeline allows the build and test of the project at every commit, and deploy the main branch.
 
 The backend will be written in Rust, and rhe frontend in typescript. Rust will be usefull to have a performant backend, and typscript will be the easiest for frontend development but will still allow for type checking.
@@ -39,13 +39,16 @@ Client --> Docker
 
 ```
 
-### Backend
+## Backend
 It will handle all the game logic. The position and the direction is stored here. It will receive the command from the users for the direction, and send the position of everyone and the apple.
 
-### Frontend
+## Frontend
 The frontend will draw the players sent by the server. It will also send every keys sent by the user.
 
-## Dependencies
+### Ping reliability
+The `Client` classcalculate the average time difference that the network takes. With  this estimation, it can smooth out the receiving of packet, so that the game seems smoother.
+
+# Dependencies
 - webassembly : run the rust code in the browser and interact with the page
 - websocket : communicate between the front and back
 
