@@ -7,7 +7,7 @@ export class MessageTPSSmoother<T> {
     }
     call(message: T) {
         if(this.debug) {
-            setTimeout(MessageTPSSmoother.handleMessage<T>, Math.random()*300, this, message)
+            setTimeout(MessageTPSSmoother.handleMessage<T>, Math.random()*200, this, message)
         } else {
             MessageTPSSmoother.handleMessage(this, message)
         }
@@ -23,7 +23,7 @@ export class MessageTPSSmoother<T> {
         handler.last = now
         let diff = handler.averagePing()*1.5 - ping
 
-        if (ping > 10)
+        if (ping > 50)
         handler.delays.push(ping)
 
         diff = Math.max(0, diff)

@@ -67,7 +67,7 @@ function startGame(username: string) {
   
     // players
     let first = (message.players.length != 0) ? message.players.sort((a, b) => b.positions.length - a.positions.length)[0].id : undefined
-    message.players.filter(p => p.id != client.getId()).forEach(player => {
+    message.players.filter(p => p.id != client.getId() && !(p.state instanceof Object && 'Dead' in p.state && p.state.Dead == 0)).forEach(player => {
       canvas.drawPlayer(player, false, first == player.id)
     })
     message.players.filter(p => p.id == client.getId()).forEach(player => {
