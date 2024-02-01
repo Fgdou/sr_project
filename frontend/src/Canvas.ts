@@ -56,7 +56,7 @@ export class Canvas {
         let width = this.size.x/this.gridSize.x;
         let height = this.size.y/this.gridSize.y;
 
-        this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.1)*height)
+        this.canvas.fillText(text, (pos.x+0.5)*width, (pos.y-.2)*height)
     }
     private getImage(name: string): CanvasImageSource {
         if(name == 'dead') return this.deadImgElement

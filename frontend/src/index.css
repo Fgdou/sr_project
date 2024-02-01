@@ -13,13 +13,17 @@ body, html {
     justify-content: center;
     height: 100%;
 }
-body, html, canvas, input {
+body, html, canvas, input, button {
     background-color: rgb(32, 32, 32);
 }
 canvas {
     background-repeat: repeat;
     margin: 0;
     padding: 0;
+}
+canvas, .canvas {
+    width: min(100vw, 70vh);
+    height: min(100vw, 70vh);
 }
 .container {
     display: none;
@@ -62,7 +66,6 @@ canvas {
     position: relative;
     display: inline-block;
     padding: 0;
-    height: 700px;
     overflow: hidden;
 }
 #login img {
@@ -79,17 +82,18 @@ canvas {
     flex-direction: column;
     text-align: center;
     font-size: 120%;
+    border-radius: 30px;
+    overflow: hidden;
 }
 #login button {
-    background: none;
-    border-radius: 30px;
+    background-color: inherit;
+    border-radius: 0 30px 30px 0;
     color: inherit;
     border: none;
     font-weight: bold;
     font-size: inherit;
     cursor: pointer;
     padding: 10px;
-    border-radius: 0 30px 30px 0;
 }
 #login button:hover {
     background-color: #303030;
@@ -98,7 +102,7 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 10px 0px rgba(0,0,0,.3);
+    box-shadow: 0 0 10px 0px rgba(100,100,100,.5);
     margin: 10px;
     border-radius: 30px;
     background-color: inherit;
@@ -109,6 +113,7 @@ canvas {
     font-size: inherit;
     text-align: center;
     padding: 10px;
+    border-radius: 30px 0 0 30px;
 }
 #login input:focus {
     outline: none;
@@ -116,6 +121,15 @@ canvas {
 
 #game {
     flex-direction: column;
+}
+
+@media screen and (max-width: 600px) {
+    #login {
+        font-size: 200%;
+    }
+    #login input {
+        width: 70vw;
+    }
 }
 
 @keyframes zoomStart {
