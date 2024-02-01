@@ -37,8 +37,8 @@ function startGame(username: string) {
     game = new Game(infos)
   }, change => {
     change.forEach(c => game?.update(c))
-
     game?.tick()
+
 
     let infos = game?.getInfos()
     if(infos != undefined)

@@ -1,8 +1,10 @@
 import { Event } from "../../backend/bindings/Event";
 import { Infos } from "../../backend/bindings/Infos";
+import { PlayerState } from "../../backend/bindings/PlayerState";
 import { Vector2 } from "../../backend/bindings/Vector2";
 
 export class Game{
+    lastStates: Map<number, PlayerState> = new Map()
     constructor(private infos: Infos) {
 
     }
@@ -32,7 +34,7 @@ export class Game{
     }
     tick() {
         this.infos.players.forEach(p => {
-            if(p.state != "Running") return;
+            if(this.lastStates.get(p.id) != "Running") return;
 
             let dir = {x: 0, y: -1}
             if(p.direction == 'Down') {
@@ -51,6 +53,8 @@ export class Game{
             p.positions.push(newPos)
             p.positions.shift()
         })
+
+        this.lastStates = new Map(this.infos.players.map(p => [p.id, p.state]))
     }
     getInfos(): Infos {
         return this.infos

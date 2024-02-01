@@ -73,7 +73,6 @@ impl Game {
         self.players.iter_mut().for_each(|p| {
             if let Some(dir) = p.next_move.pop() {
                 p.player.set_direction(dir.clone());
-                diff.push(Event::MovePlayer { dir, id: p.player.get_id() });
             }
             p.player.update(&self.size)
         });
