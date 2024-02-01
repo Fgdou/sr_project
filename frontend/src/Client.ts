@@ -7,7 +7,7 @@ import { getSocket } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
 let urls = [
-    `${protocol}://${location.hostname}/ws`,
+    `${protocol}://${location.hostname}:${location.port}/ws`,
     `${protocol}://${location.hostname}:8080`
   ]
 
