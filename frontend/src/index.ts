@@ -1,6 +1,7 @@
 import { Infos } from "../../backend/bindings/Infos";
 import {Canvas} from "./Canvas.js"
 import { Client } from "./Client.js";
+import { Game } from "./Game.js";
 import { registerLoginCallback } from "./LoginWindow.js";
 import { Leaderboard } from "./leaderboard.js";
 import { getPlayer, getUsername, setupKeyboard, setupSwipes } from "./utils.js";
@@ -31,7 +32,20 @@ function startGame(username: string) {
   let divUsername = document.getElementById("username_name") as HTMLSpanElement
   let divScore = document.getElementById("score") as HTMLSpanElement
 
-  let client = new Client(draw, username);
+  let game: Game|undefined = undefined;
+  let client = new Client(infos => {
+    game = new Game(infos)
+  }, change => {
+    change.forEach(c => game?.update(c))
+
+    game?.tick()
+
+    let infos = game?.getInfos()
+    if(infos != undefined)
+      draw(infos)
+  }, username);
+
+
 
   setupSwipes(dir => {
     client.sendMessage({
