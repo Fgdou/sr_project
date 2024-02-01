@@ -35,6 +35,7 @@ function startGame(username: string) {
   let game: Game|undefined = undefined;
   let client = new Client(infos => {
     game = new Game(infos)
+    draw(infos)
   }, change => {
     change.forEach(c => game?.update(c))
     game?.tick()

@@ -7,7 +7,7 @@ export class MessageTPSSmoother<T> {
     }
     call(message: T) {
         if(this.debug) {
-            setTimeout(MessageTPSSmoother.handleMessage<T>, Math.random()*200, this, message)
+            setTimeout(MessageTPSSmoother.handleMessage<T>, Math.random()*400, this, message)
         } else {
             MessageTPSSmoother.handleMessage(this, message)
         }

@@ -14,10 +14,22 @@ let urls = [
 export class Client {
     private socket: WebSocket | undefined = undefined
     private id: number|undefined = undefined
-    private messageHandler: MessageTPSSmoother<Event[]>
+    private messageHandler: MessageTPSSmoother<MessageServer>
+    private count = 0;
 
     constructor(callbackInfos: (message: Infos) => void, callbackChanges: (Message: Event[]) => void, username: string) {
-        this.messageHandler = new MessageTPSSmoother(callbackChanges, true);
+        this.messageHandler = new MessageTPSSmoother(infos => {
+            if ('ChangeInfos' in infos){
+                let count = infos.ChangeInfos.count
+
+                if (count != this.count) {
+                    this.sendMessage("ResendAll")
+                } else {
+                    callbackChanges(infos.ChangeInfos.events)
+                }
+                this.count += 1
+            }
+        }, false);
 
         (async () => {
             for(let url of urls){
@@ -30,10 +42,13 @@ export class Client {
                 
                         console.log(message)
                     
-                        if ("Infos" in message)
+                        if ("Infos" in message){
+                            this.count = message.Infos.message_count
                             callbackInfos(message.Infos)
-                        if ("ChangeInfos" in message)
-                            this.messageHandler.call(message.ChangeInfos)
+                        }
+                        if ("ChangeInfos" in message){
+                            this.messageHandler.call(message)
+                        }
                         if ("SetId" in message)
                             this.id = message["SetId"]
                         if ("Error" in message)
@@ -52,6 +67,7 @@ export class Client {
     }
 
     sendMessage(message: MessageClient) {
+        console.log(message)
         this.socket?.send(JSON.stringify(message))
     }
     getId(): number|undefined {
