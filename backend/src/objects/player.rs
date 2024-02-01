@@ -97,7 +97,7 @@ impl Player {
         }
     }
     pub fn add_position(&mut self, position: Vector2) {
-        self.positions.push(position)
+        self.positions.insert(0, position)
     }
     pub fn get_state(&self) -> &PlayerState {
         &self.state

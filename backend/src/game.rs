@@ -27,7 +27,7 @@ impl Game {
         let pos = self.free_space(3);
 
         if let Some(pos) = pos {
-            (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, -i)));
+            (0..3).for_each(|i| client.player.add_position(pos.clone() + Vector2::new(0, i)));
             self.players.push(client);
         } else {
             client.send_message(&MessageServer::Error("No space available".to_string()));
