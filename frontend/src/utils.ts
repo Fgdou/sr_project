@@ -111,3 +111,9 @@ export function setupKeyboard(callback: (dir: Direction) => void) {
       
       window.addEventListener("keydown", keyHandler)
 }
+export function getParams(name: string): string|undefined{
+    let search = (new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search)
+    if( search )
+       return decodeURIComponent(search[1]);
+    return undefined
+ }

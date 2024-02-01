@@ -1,7 +1,7 @@
 * {
     font-family: sans-serif;
 }
-body, html {
+html {
     margin: 0;
     padding: 0;
     overscroll-behavior: none;
@@ -13,7 +13,7 @@ body, html {
     justify-content: center;
     height: 100%;
 }
-body, html, canvas, input, button {
+html, canvas, input, button {
     background-color: rgb(32, 32, 32);
 }
 canvas {
@@ -158,3 +158,21 @@ canvas, .canvas {
     animation: zoomStart 1s cubic-bezier(0.01, 1.26, 0.55, 0.68);
 }
 
+.error {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    font-size: 150%;
+    margin: 0;
+    max-width: 100vh;
+    border-radius: 0 0 30px 30px;
+    background-color: rgba(255, 0, 0, 0.39);
+    color: white;
+    text-align: center;
+    padding: 10px 30px;
+    transition: transform 1s;
+}
+.error.open {
+    transform: translateX(-50%) translateY(0);
+}
