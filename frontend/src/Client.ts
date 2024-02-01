@@ -2,7 +2,7 @@ import { Infos } from "../../backend/bindings/Infos.js";
 import { MessageClient } from "../../backend/bindings/MessageClient.js";
 import { MessageServer } from "../../backend/bindings/MessageServer.js";
 import { MessageTPSSmoother } from "./MessageTPSSmoother.js";
-import { getSocket, getUsername } from "./utils.js";
+import { getSocket } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
 let urls = [
@@ -15,7 +15,7 @@ export class Client {
     private id: number|undefined = undefined
     private messageHandler: MessageTPSSmoother<Infos>
 
-    constructor(callback: (message: Infos) => void) {
+    constructor(callback: (message: Infos) => void, username: string) {
         this.messageHandler = new MessageTPSSmoother(callback, true);
 
         (async () => {
@@ -38,10 +38,9 @@ export class Client {
                     });
                     
                     // Connection opened
-                    let pseudo = getUsername();
-                    console.log(`Hello ${pseudo}`)
+                    console.log(`Hello ${username}`)
                     this.sendMessage({
-                        Connection: pseudo
+                        Connection: username
                     })
                     break
                 } catch (e) {}

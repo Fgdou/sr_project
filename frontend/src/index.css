@@ -19,6 +19,10 @@ canvas {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    display: none;
+}
+.container.open{
+    display: block;
 }
 .playerInfos {
     display: flex;

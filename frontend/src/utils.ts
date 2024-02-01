@@ -17,13 +17,10 @@ export function getCookie(cname: string): string {
     }
     return "";
 }
-export function getUsername(): string {
+export function getUsername(): string|undefined {
     let username = getCookie("username")
 
-    while(username == "") {
-        username = window.prompt("Username") as string
-        document.cookie = `username=${username}`
-    }
+    if(username == "") return undefined
 
     return username
   }

@@ -7,8 +7,16 @@
         <link rel="shortcut icon" href="img/logo.png" type="image/png">
     </head>
     <body>
-        <div class="container">
-            <div class="playerInfos"><div class="username_logout"><a onclick="logout()" id="logout" href="#">X</a><span id="username">Username</span></div><span id="score">Score</span></div>
+        <div class="container open" id="login">
+            <form action="#" id="username" method="post">
+                <div>
+                    Enter your username
+                </div>
+                <div><input type="text" name="username" id="login_username"><button type="submit">></button></div>
+            </form>
+        </div>
+        <div class="container" id="game">
+            <div class="playerInfos"><div class="username_logout"><a onclick="logout()" id="logout" href="#">X</a><span id="username_name">Username</span></div><span id="score">Score</span></div>
             <div class="canvas"><canvas id="canvas" height="700px" width="700px"></canvas></div>
             <div class="leaderboard">
                 <table id="leaderboard"></table>
