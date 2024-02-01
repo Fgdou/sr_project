@@ -1,10 +1,17 @@
 import { Infos } from "../../backend/bindings/Infos";
 import {Canvas} from "./Canvas.js"
 import { Client } from "./Client.js";
+import { ErrorBanner } from "./ErrorBanner.js";
 import { Game } from "./Game.js";
 import { registerLoginCallback } from "./LoginWindow.js";
 import { Leaderboard } from "./leaderboard.js";
-import { getPlayer, getUsername, setupKeyboard, setupSwipes } from "./utils.js";
+import { getPlayer, getUsername, setupKeyboard, setupSwipes, getParams } from "./utils.js";
+
+let error = getParams('error')
+if(error != undefined) {
+  console.log(error)
+  new ErrorBanner(error)
+}
 
 let username = getUsername()
 
@@ -16,10 +23,6 @@ if(username != undefined) {
 
 
 function startGame(username: string) {
-  document.cookie = `username=${username}`
-  document.getElementById("login")?.classList.remove("open")
-  document.getElementById("game")?.classList.add("open")
-
   let leaderboard = new Leaderboard("leaderboard");
 
   let html = (document.getElementById("canvas") as HTMLCanvasElement)
@@ -45,6 +48,10 @@ function startGame(username: string) {
     if(infos != undefined)
       draw(infos)
   }, username);
+
+  document.cookie = `username=${username}`
+  document.getElementById("login")?.classList.remove("open")
+  document.getElementById("game")?.classList.add("open")
 
 
 
@@ -104,10 +111,13 @@ function startGame(username: string) {
 }
 
 declare global {
-  interface Window {logout: () => void}
+  interface Window {logout: (error: string|undefined) => void}
 }
 
-window.logout = () => {
+window.logout = (error) => {
   document.cookie = "username=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  location.reload()
+  if (error == undefined)
+    location.reload()
+  else
+    location.replace(`?error=${error}`)
 }

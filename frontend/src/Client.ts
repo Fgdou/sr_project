@@ -75,8 +75,7 @@ export class Client {
     }
 
     private handleError(error: string) {
-        alert(error)
-        window.logout()
+        window.logout(error)
     }
     averagePing(): number {
         return this.messageHandler.averagePing()
