@@ -42,6 +42,11 @@ Client --> Docker
 ## Backend
 It will handle all the game logic. The position and the direction is stored here. It will receive the command from the users for the direction, and send the position of everyone and the apple.
 
+### XSS Attacks
+When I first tried my game with my friends, they started putting html elements in the username... So it caused issues. So I implemented 2 conditions :
+- must be 10 characters max
+- must be only alphanumeric
+
 ## Frontend
 The frontend will draw the players sent by the server. It will also send every keys sent by the user.
 
