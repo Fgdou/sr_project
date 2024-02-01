@@ -12,6 +12,8 @@ let urls = [
 export class Client {
     private socket: WebSocket | undefined = undefined
     private id: number|undefined = undefined
+    private last = 0
+    private delays: number[] = []
 
     constructor(private callback: (message: Infos) => void) {
         (async () => {
@@ -26,7 +28,7 @@ export class Client {
                         console.log(message)
                     
                         if ("Infos" in message)
-                            callback(message["Infos"])
+                            this.handleMessage(message.Infos)
                         if ("SetId" in message)
                             this.id = message["SetId"]
                         if ("Error" in message)
@@ -39,6 +41,7 @@ export class Client {
                     this.sendMessage({
                         Connection: pseudo
                     })
+                    this.last = Date.now()
                     break
                 } catch (e) {}
             }
@@ -55,5 +58,24 @@ export class Client {
     private handleError(error: string) {
         alert(error)
         window.logout()
+    }
+    averagePing(): number {
+        if (this.delays.length == 0) return 0
+        return this.delays.map(n => n/this.delays.length).reduce((prev, n) => prev+n)
+    }
+    private handleMessage(message: Infos) {
+        let now = Date.now()
+
+        let ping = Math.max(now-this.last-300, 0)
+        this.last = now
+        let diff = this.averagePing()*2-ping
+
+        if (ping > 10)
+        this.delays.push(ping)
+
+        diff = Math.max(0, diff)
+
+
+        setTimeout((m: Infos) => this.callback(m), diff, message)
     }
 }
