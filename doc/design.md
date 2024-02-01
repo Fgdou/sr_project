@@ -4,6 +4,7 @@ Design
 # Idea
 
 ![snake example](./snake-example.jpg)
+
 The idea is to create a snake game, but multiplayer. The idea is to copy the classical game :
 - a fixed size grid
 - only one apple for everyone
