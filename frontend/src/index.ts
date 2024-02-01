@@ -111,9 +111,9 @@ function draw(message: Infos) {
     if(player.state instanceof Object && "Waiting" in player.state && player.state.Waiting%2 == 0) {
       let pos = {
         x: message.size.x/2,
-        y: message.size.y
+        y: message.size.y*0.75
       }
-      canvas.drawText((player.state.Waiting/2).toString(), pos, "white", 70);
+      canvas.drawText((player.state.Waiting/2).toString(), pos, "rgba(255, 255, 255, .3)", 30);
     }
   }
 
