@@ -12,7 +12,8 @@ You can access the game at https://sr.fgdou.ovh/
 - [Fabien GOARDOU](https://fabiengoardou.fr/)
 
 # Documents
-- [design file](./doc/design.md)
+- [Design File](./doc/design.md)
+- [Report](./doc/report.md)
 
 # Docker
 ## Run it on your server
