@@ -61,7 +61,7 @@ function draw(message: Infos) {
   // show info on the current player
   let player = getPlayer(message, client.getId())
   if(player){
-    divUsername.textContent = `${player.username} (${client.averagePing()}ms)`
+    divUsername.textContent = `${player.username} (${Math.floor(client.averagePing())}ms)`
     divScore.textContent = player.positions.length.toString()
 
     if(player.state instanceof Object && "Waiting" in player.state && player.state.Waiting%2 == 0) {
