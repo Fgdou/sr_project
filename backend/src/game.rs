@@ -83,6 +83,7 @@ impl Game {
             .filter(|p| p.player.get_state() == &PlayerState::Running)
             .map(|p| p.player.clone()).collect();
         self.players.iter_mut()
+            .filter(|p| p.player.get_state() == &PlayerState::Running)
             .filter(|p1| players.iter().any(|p2| p1.player.intersect_player(&p2)))
             .for_each(|p| p.player.kill());
 
