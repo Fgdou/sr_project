@@ -4,7 +4,7 @@ Report - Fabien GOARDOU
 # Challenges
 
 ## Ping reliability
-The `Client` classcalculate the average time difference that the network takes. With  this estimation, it can smooth out the receiving of packet, so that the game seems smoother.
+The `Client` classcalculate the average time difference that the network takes. With  this estimation, it can smooth out the receiving of packet, so that the game seems smoother. You can see the implementation in the [`MessageTPSSmoother`](../frontend/src/MessageTPSSmoother.ts) class.
 
 ## Error detection
 For every message received, an id is linked to it. The `Client` module compares it, and if there is an error, ask the server to send the full information.
