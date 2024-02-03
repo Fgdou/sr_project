@@ -8,6 +8,10 @@ export class Canvas {
     crownImgElement: HTMLImageElement
     deadImgElement: HTMLImageElement
 
+    playerBasicColor = "gray"
+    playerSelfColor = "#0dce74"
+    playerOtherColor = "#864AF9"
+
     constructor(private canvas: CanvasRenderingContext2D, private size: Vector2){
         this.crownImgElement = document.getElementById("crown") as HTMLImageElement
         this.deadImgElement = document.getElementById("dead") as HTMLImageElement
@@ -27,12 +31,12 @@ export class Canvas {
         this.canvas.reset()
     }
     drawPlayer(player: Player, me: boolean, first: boolean) {
-        let color = "gray"
+        let color = this.playerBasicColor
         if (player.state == "Running") {
-            color = "#864AF9"
+            color = this.playerOtherColor
         }
         if(me && !(player.state instanceof Object && "Dead" in player.state)) {
-            color = "#0dce74"
+            color = this.playerSelfColor
         }
 
         player.positions.forEach(p => {
