@@ -61,7 +61,7 @@ canvas, .canvas {
 }
 .canvas{
     margin: 20px 0;
-    box-shadow: 0px 0px 20px 0px rgba(0,0,0,.3);
+    box-shadow: 0px 0px 20px 0px #0dce749f;
     border-radius: 20px;
     position: relative;
     display: inline-block;
@@ -102,7 +102,7 @@ canvas, .canvas {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 10px 0px rgba(100,100,100,.5);
+    box-shadow: 0 0 10px 0px #0dce749f;
     margin: 10px;
     border-radius: 30px;
     background-color: inherit;
