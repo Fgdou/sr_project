@@ -88,7 +88,9 @@ impl Game {
 
         // apples
         self.apples.retain(|apple| {
-            let player = self.players.iter_mut().find(|p| p.player.intersect_apple(apple));
+            let player = self.players.iter_mut()
+                .filter(|p| p.player.get_state() == &PlayerState::Running)
+                .find(|p| p.player.intersect_apple(apple));
             if let Some(player) = player {
                 player.player.increase();
                 self.diffs.push(Event::RemoveApple(apple.clone()));
