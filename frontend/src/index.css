@@ -1,10 +1,8 @@
 * {
     font-family: sans-serif;
 }
-html, body {
-    overscroll-behavior: none;
-}
 html {
+    overscroll-behavior: none;
     margin: 0;
     padding: 0;
     color: white;
@@ -73,10 +71,7 @@ canvas, .canvas {
 #login img {
     width: 100px;
     margin: 50px;
-    transition: transform 1s ease-out;
-}
-#login img:hover {
-    transform: scale(1.5) rotate(1080deg);
+    animation: logo 10s ease-out 3s infinite forwards;
 }
 #login {
     justify-content: center;
@@ -183,9 +178,52 @@ footer {
     position: absolute;
     bottom: 0;
     right: 0;
-    padding: 5px 10px;
+    padding: 20px 50px;
 }
 footer a {
     color: white;
     font-weight: bold;
+    position: relative;
+    display: inline-block;
+}
+footer :nth-child(1) {
+    animation: footer 10s ease-in-out 5s infinite;
+}
+footer :nth-child(2) {
+    animation: footer 10s ease-in-out 5.1s infinite;
+}
+
+@keyframes footer {
+    0% {
+        transform: scale(1);
+    }
+    2% {
+        transform: scale(1.5);
+    }
+    4% {
+        transform: scale(1);
+    }
+}
+@keyframes logo {
+    0% {
+        transform: rotate(0);
+    }
+    1% {
+        transform: rotate(-10deg);
+    }
+    2% {
+        transform: rotate(10deg);
+    }
+    3% {
+        transform: rotate(-10deg);
+    }
+    4% {
+        transform: rotate(10deg);
+    }
+    5% {
+        transform: rotate(0);
+    }
+    100% {
+        transform: rotate(0);
+    }
 }
