@@ -103,8 +103,6 @@ impl Game {
 
         // send message
         self.diffs.extend(self.players.iter_mut().map(|p| p.player.diff()).flatten());
-
-        
         self.players.iter_mut().for_each(|p| {
             p.send_message(&MessageServer::ChangeInfos{events: self.diffs.clone(), count: self.message_count})
         });
