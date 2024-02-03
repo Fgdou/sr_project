@@ -9,7 +9,7 @@ use super::{Event, Infos};
 pub enum MessageServer {
     Error(String),
     Infos(Infos),
-    ChangeInfos{events: Vec<Event>, count: i32},
+    ChangeInfos{events: Vec<Event>, count: u64},
     SetId(i32)
 }
 

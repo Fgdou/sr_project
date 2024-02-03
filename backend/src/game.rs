@@ -10,7 +10,7 @@ pub struct Game {
     last_players: Vec<Player>,
     last_apples: Vec<Vector2>,
     diffs: Vec<Event>,
-    message_count: i32,
+    message_count: u64,
 }
 
 impl Game {
@@ -110,7 +110,7 @@ impl Game {
         // update history
         self.last_apples = self.apples.clone();
         self.last_players = self.players.iter().map(|p| p.player.clone()).collect();
-        self.message_count += 1;
+        self.message_count = self.message_count.wrapping_add(1);
     }
     pub fn remove_client(&mut self, id: i32) {
         self.players.retain(|p| p.player.get_id() != id);
