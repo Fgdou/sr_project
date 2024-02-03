@@ -10,7 +10,7 @@ pub struct Game {
     last_players: Vec<Player>,
     last_apples: Vec<Vector2>,
     diffs: Vec<Event>,
-    message_count: u64,
+    message_count: u32,
 }
 
 impl Game {
