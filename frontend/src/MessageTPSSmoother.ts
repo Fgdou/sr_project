@@ -21,14 +21,13 @@ export class MessageTPSSmoother<T> {
 
         let ping = Math.max(now-handler.last-300, 0)
         handler.last = now
-        let diff = handler.averagePing()*1.5 - ping
+        let diff = handler.averagePing()*2 - ping
 
-        if (ping > 50)
         handler.delays.push(ping)
 
         diff = Math.max(0, diff)
 
-        handler.delays = handler.delays.slice(handler.delays.length-10, handler.delays.length)
+        handler.delays = handler.delays.slice(handler.delays.length-50, handler.delays.length)
 
 
         setTimeout(handler.callback, diff, message)
