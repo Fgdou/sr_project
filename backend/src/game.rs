@@ -10,7 +10,7 @@ pub struct Game {
     last_players: Vec<Player>,
     last_apples: Vec<Vector2>,
     diffs: Vec<Event>,
-    message_count: i32,
+    message_count: u32,
 }
 
 impl Game {
@@ -83,12 +83,15 @@ impl Game {
             .filter(|p| p.player.get_state() == &PlayerState::Running)
             .map(|p| p.player.clone()).collect();
         self.players.iter_mut()
+            .filter(|p| p.player.get_state() == &PlayerState::Running)
             .filter(|p1| players.iter().any(|p2| p1.player.intersect_player(&p2)))
             .for_each(|p| p.player.kill());
 
         // apples
         self.apples.retain(|apple| {
-            let player = self.players.iter_mut().find(|p| p.player.intersect_apple(apple));
+            let player = self.players.iter_mut()
+                .filter(|p| p.player.get_state() == &PlayerState::Running)
+                .find(|p| p.player.intersect_apple(apple));
             if let Some(player) = player {
                 player.player.increase();
                 self.diffs.push(Event::RemoveApple(apple.clone()));
@@ -100,8 +103,6 @@ impl Game {
 
         // send message
         self.diffs.extend(self.players.iter_mut().map(|p| p.player.diff()).flatten());
-
-        
         self.players.iter_mut().for_each(|p| {
             p.send_message(&MessageServer::ChangeInfos{events: self.diffs.clone(), count: self.message_count})
         });
@@ -110,7 +111,7 @@ impl Game {
         // update history
         self.last_apples = self.apples.clone();
         self.last_players = self.players.iter().map(|p| p.player.clone()).collect();
-        self.message_count += 1;
+        self.message_count = self.message_count.wrapping_add(1);
     }
     pub fn remove_client(&mut self, id: i32) {
         self.players.retain(|p| p.player.get_id() != id);
