@@ -1,11 +1,12 @@
 FROM rust:bookworm as builder_backend
 WORKDIR /app
 COPY backend/Cargo.toml backend/Cargo.lock ./
-RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN mkdir src && echo "fn main() { println!(\"Hello world\") }" > src/main.rs
 RUN cargo fetch
 RUN cargo build --release
 RUN rm src/main.rs
-COPY ./backend/src ./src
+COPY ./backend/src/ ./src/
+RUN touch src/main.rs
 RUN cargo test --release && cargo build --release
 
 FROM node:alpine as builder_frontend
