@@ -25,6 +25,6 @@ The docker build time was 2 minutes for each commit and pull request. This is a 
 # Work Organization
 This project is organized aroung one tool : **GitHub**. It has a `master` and `develop` branches, along with a pipeline :
 1. each commit to `develop` is build and tested
-2. each merge to `master` has topass the build and will be published as a docker image
+2. each merge to `master` has to pass the build and will be published as a docker image
 
 Also, to reference new features or bugs, I use the [GitHub issues](https://github.com/Fgdou/sr_project/issues) of the project. This way, I only focus on one main task at a time.
