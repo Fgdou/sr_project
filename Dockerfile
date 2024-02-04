@@ -1,13 +1,20 @@
 FROM rust:bookworm as builder_backend
 WORKDIR /app
-COPY ./backend ./
+COPY backend/Cargo.toml backend/Cargo.lock ./
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo fetch
+RUN cargo build --release
+RUN rm src/main.rs
+COPY ./backend/src ./src
 RUN cargo test --release && cargo build --release
 
 FROM node:alpine as builder_frontend
 WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
 COPY --from=builder_backend /app/bindings ./backend/bindings
 COPY ./frontend/ ./frontend
-RUN cd frontend && npm install && npm run build
+RUN cd frontend && npm run build
 
 
 FROM debian:bookworm-slim as runner

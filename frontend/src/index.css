@@ -2,7 +2,6 @@
     font-family: sans-serif;
 }
 html {
-    overscroll-behavior: none;
     margin: 0;
     padding: 0;
     color: white;
@@ -12,6 +11,9 @@ html {
     align-items: center;
     justify-content: center;
     height: 100%;
+}
+body, html {
+    overscroll-behavior: none;
 }
 html, canvas, input, button {
     background-color: rgb(32, 32, 32);
