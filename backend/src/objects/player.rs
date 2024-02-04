@@ -84,9 +84,19 @@ impl Player {
             other.positions.contains(self.positions.last().unwrap())
         }
     }
-    pub fn kill(&mut self) {
+    pub fn kill(&mut self) -> Vec<Vector2> {
         if self.state == PlayerState::Running {
-            self.set_state(PlayerState::Dead(12))
+            self.set_state(PlayerState::Dead(12));
+            self.positions.iter()
+                .filter_map(|p| {
+                    if rand::random::<u8>() < u8::MAX/4 {
+                        Some(p.clone())
+                    } else {
+                        None
+                    }
+                }).collect()
+        } else {
+            Vec::new()
         }
     }
     pub fn set_username(&mut self, username: String) {

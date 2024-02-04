@@ -85,7 +85,13 @@ impl Game {
         self.players.iter_mut()
             .filter(|p| p.player.get_state() == &PlayerState::Running)
             .filter(|p1| players.iter().any(|p2| p1.player.intersect_player(&p2)))
-            .for_each(|p| p.player.kill());
+            .map(|p| p.player.kill())
+            .flatten()
+            .for_each(|apple| {
+                self.apples.push(apple.clone());
+                self.diffs.push(Event::AddApple(apple));
+            });
+
 
         // apples
         self.apples.retain(|apple| {
