@@ -19,6 +19,9 @@ When I first tried my game with my friends, they started putting html elements i
 1. must be 10 characters max
 2. must be only alphanumeric
 
+## Docker build time
+The docker build time was 2 minutes for each commit and pull request. This is a bit long to wait when you want to deploy. The issue is taht the build process in the [`Dockerfile`](../Dockerfile) download and build the libraries each time. The solution was to add a step between building libraries and the code, so that every step is cached. If we do a modification to the code, it will only build the new code. [This commit](https://github.com/Fgdou/sr_project/commit/f1fac72bf3ed3c4de22382c6b8e453ee7b0a98b1) divided the time by 2.
+
 # Work Organization
 This project is organized aroung one tool : **GitHub**. It has a `master` and `develop` branches, along with a pipeline :
 1. each commit to `develop` is build and tested
