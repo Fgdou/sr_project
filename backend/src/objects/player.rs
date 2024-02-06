@@ -72,7 +72,7 @@ impl Player {
         }
     }
     pub fn increase(&mut self) {
-        let pos = self.positions.iter().last().unwrap().clone();
+        let pos = self.positions.iter().next().unwrap().clone();
         self.positions.insert(0, pos);
         self.diffs.push(Event::IncreasePlayer(self.id))
     }
@@ -87,7 +87,7 @@ impl Player {
     }
     pub fn intersect_player(&self, other: &Player) -> bool {
         if other == self {
-            other.positions[0..other.positions.len()-1].contains(self.positions.last().unwrap())
+            other.positions[0..other.positions.len()-1].contains(&self.head())
         } else {
             other.intersect(&self.head())
         }
@@ -134,5 +134,132 @@ impl Player {
 impl PartialEq for Player {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn example_player() -> Player {
+        Player {
+            diffs: Default::default(),
+            direction: Direction::Up,
+            id: Default::default(),
+            username: Default::default(),
+            state: PlayerState::Running,
+            positions: vec!(
+                Vector2::new(0, 0),
+                Vector2::new(0, 1),
+                Vector2::new(0, 2),
+                Vector2::new(0, 3),
+                Vector2::new(1, 3),
+                Vector2::new(2, 3),
+                Vector2::new(3, 3),
+            )
+        }
+    }
+
+    #[test]
+    fn intersect() {
+        let player = example_player();
+
+        player.positions.iter().for_each(|p| assert_eq!(true, player.intersect(p)));
+
+        assert_eq!(false, player.intersect(&Vector2::new(-1, 0)));
+        assert_eq!(false, player.intersect(&Vector2::new(0, -1)));
+        assert_eq!(false, player.intersect(&Vector2::new(3, 4)));
+    }
+
+    #[test]
+    fn intersect_apple() {
+        let player = example_player();
+
+        assert_eq!(true, player.intersect_apple(&Vector2::new(3,3)));
+        assert_eq!(false, player.intersect_apple(&Vector2::new(3,2)));
+        assert_eq!(false, player.intersect_apple(&Vector2::new(3,4)));
+        assert_eq!(false, player.intersect_apple(&Vector2::new(2,3)));
+        assert_eq!(false, player.intersect_apple(&Vector2::new(4,3)));
+        assert_eq!(false, player.intersect_apple(&Vector2::new(0,0)));
+    }
+
+    #[test]
+    fn intersect_player_same() {
+        let player = example_player();
+        let other_player = example_player();
+
+        assert_eq!(false, player.intersect_player(&other_player));
+    }
+    #[test]
+    fn intersect_player_not_same() {
+        let player = example_player();
+        let mut other_player = example_player();
+
+        other_player.id = 1;
+
+        assert_eq!(true,  player.intersect_player(&other_player));
+    }
+    #[test]
+    fn intersect_player_close() {
+        let player = example_player();
+        let mut other_player = example_player();
+
+        other_player.id = 1;
+        other_player.positions = vec!(
+            Vector2::new(3, 2),
+            Vector2::new(3, 3),
+            Vector2::new(3, 4),
+        );
+
+        assert_eq!(true,  player.intersect_player(&other_player));
+
+
+        other_player.positions = vec!(
+            Vector2::new(4, 2),
+            Vector2::new(4, 3),
+            Vector2::new(4, 4),
+        );
+        assert_eq!(false,  player.intersect_player(&other_player));
+    }
+
+    #[test]
+    fn intersect_player_too_late() {
+        let player = example_player();
+        let mut other_player = example_player();
+
+        other_player.id = 1;
+        other_player.positions = vec!(
+            Vector2::new(2, 2),
+            Vector2::new(2, 3),
+            Vector2::new(2, 4),
+        );
+
+        assert_eq!(false,  player.intersect_player(&other_player));
+    }
+    #[test]
+    fn intersect_player_tail_not_touching() {
+        let player = example_player();
+        let mut other_player = example_player();
+
+        other_player.positions = vec!(
+            Vector2::new(4, 3),
+            Vector2::new(5, 3),
+            Vector2::new(6, 3),
+        );
+
+        assert_eq!(false,  player.intersect_player(&other_player));
+    }
+    #[test]
+    fn intersect_player_tail_touching() {
+        let player = example_player();
+        let mut other_player = example_player();
+
+        other_player.positions = vec!(
+            Vector2::new(3, 3),
+            Vector2::new(4, 3),
+            Vector2::new(5, 3),
+        );
+
+        assert_eq!(true,  player.intersect_player(&other_player));
     }
 }
