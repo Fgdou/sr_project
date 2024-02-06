@@ -150,7 +150,7 @@ button.button:hover {
 }
 #retry.open {
     display: flex;
-    animation: bluring 4s linear 0s 1;
+    animation: bluring 4s ease-in 0s 1;
 }
 #retry {
     display: none;
@@ -214,6 +214,8 @@ button.button:hover {
     background-size: contain;
     background-repeat: no-repeat;
     transform: scale(0);
+}
+.canvas.animate::after {
     animation: zoomStart 1s cubic-bezier(0.01, 1.26, 0.55, 0.68);
 }
 

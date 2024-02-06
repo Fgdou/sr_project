@@ -54,6 +54,8 @@ function startGame(username: string) {
   document.cookie = `username=${username}`
   document.getElementById("login")?.classList.remove("open")
   document.getElementById("game")?.classList.add("open")
+  document.getElementsByClassName("canvas")[0].classList.add("animate")
+  setTimeout(() => document.getElementsByClassName("canvas")[0].classList.remove("animate"), 2000)
 
 
 

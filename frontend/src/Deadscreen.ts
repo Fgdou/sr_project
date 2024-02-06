@@ -3,6 +3,7 @@ import { Player } from "../../backend/bindings/Player";
 export class Deadscreen {
     constructor(player: Player, players: Player[], time: number) {
         (document.getElementById("retry") as HTMLDivElement).classList.add("open");
+        document.getElementsByClassName("canvas")[0].classList.add("animate")
         let score = player.positions.length;
         let bestPlayer = players.sort((p1, p2) => p2.positions.length - p1.positions.length)[0];
 
