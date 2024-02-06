@@ -1,5 +1,5 @@
 export class ErrorBanner{
-    constructor(message: string) {
+    constructor(message: string, persistent: boolean = false) {
         let div = document.createElement('div')
 
         div.innerText = message
@@ -10,12 +10,14 @@ export class ErrorBanner{
         setTimeout(() => {
             div.classList.add("open")
         }, 100)
-        setTimeout(() => {
-            div.classList.remove("open")
-        }, 5000)
-        setTimeout(() => {
-            document.getElementsByTagName("body")[0].removeChild(div)
-            window.history.pushState(null, "", "/")
-        }, 7000)
+        if(!persistent){
+            setTimeout(() => {
+                div.classList.remove("open")
+            }, 5000)
+            setTimeout(() => {
+                document.getElementsByTagName("body")[0].removeChild(div)
+                window.history.pushState(null, "", "/")
+            }, 7000)
+        }
     }
 }
