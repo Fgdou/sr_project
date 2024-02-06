@@ -149,10 +149,6 @@ mod tests {
             username: Default::default(),
             state: PlayerState::Running,
             positions: vec!(
-                Vector2::new(0, 0),
-                Vector2::new(0, 1),
-                Vector2::new(0, 2),
-                Vector2::new(0, 3),
                 Vector2::new(1, 3),
                 Vector2::new(2, 3),
                 Vector2::new(3, 3),
@@ -261,5 +257,64 @@ mod tests {
         );
 
         assert_eq!(true,  player.intersect_player(&other_player));
+    }
+    #[test]
+    fn test_increase() {
+        let mut player = example_player();
+
+        let vec = vec!(
+            Vector2::new(1, 3),
+            Vector2::new(2, 3),
+            Vector2::new(3, 3),
+        );
+        let expected = vec!(
+            Vector2::new(1, 3),
+            Vector2::new(1, 3),
+            Vector2::new(2, 3),
+            Vector2::new(3, 3),
+        );
+
+        assert_eq!(vec, player.positions);
+        player.increase();
+        assert_eq!(expected, player.positions);
+    }
+    #[test]
+    fn test_move() {
+        let mut player = example_player();
+
+        let vec = vec!(
+            Vector2::new(1, 3),
+            Vector2::new(2, 3),
+            Vector2::new(3, 3),
+        );
+        let expected = vec!(
+            Vector2::new(2, 3),
+            Vector2::new(3, 3),
+            Vector2::new(3, 2),
+        );
+
+        assert_eq!(vec, player.positions);
+        player.update(&Vector2::new(100, 100));
+        assert_eq!(expected, player.positions);
+    }
+    #[test]
+    fn test_move_outside() {
+        let mut player = example_player();
+
+        player.update(&Vector2::new(4, 4));
+        assert_eq!(PlayerState::Running, player.state);
+        assert_eq!(Vector2::new(3, 2), player.head());
+
+        player.update(&Vector2::new(4, 4));
+        assert_eq!(PlayerState::Running, player.state);
+        assert_eq!(Vector2::new(3, 1), player.head());
+
+        player.update(&Vector2::new(4, 4));
+        assert_eq!(PlayerState::Running, player.state);
+        assert_eq!(Vector2::new(3, 0), player.head());
+
+        player.update(&Vector2::new(4, 4));
+        assert_eq!(PlayerState::Dead(12), player.state);
+        assert_eq!(Vector2::new(3, 0), player.head());
     }
 }
