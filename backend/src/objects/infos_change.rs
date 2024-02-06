@@ -3,7 +3,7 @@ use ts_rs::TS;
 
 use super::{Direction, Player, PlayerState, Vector2};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[derive(TS)]
 #[ts(export)]
 pub enum Event {
