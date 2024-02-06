@@ -69,6 +69,8 @@ function startGame(username: string) {
   function draw(message: Infos) {
     canvas.clear()
     canvas.setGridSize(message.size)
+
+    let player = getPlayer(message, client.getId())
   
     // apples
     message.apples.forEach(apple => canvas.drawRectangle(apple, "red"))
@@ -78,9 +80,8 @@ function startGame(username: string) {
     message.players.filter(p => p.id != client.getId() && !(p.state instanceof Object && 'Dead' in p.state && p.state.Dead == 0)).forEach(player => {
       canvas.drawPlayer(player, false, first == player.id)
     })
-    message.players.filter(p => p.id == client.getId()).forEach(player => {
+    if(player != undefined)
       canvas.drawPlayer(player, true, first == player.id)
-    })
   
     // player names
     message.players
@@ -91,7 +92,6 @@ function startGame(username: string) {
       })
   
     // show info on the current player
-    let player = getPlayer(message, client.getId())
     if(player){
       divUsername.innerHTML = `<b>${player.username}</b> (${Math.floor(client.averagePing())}ms)`
       divScore.textContent = player.positions.length.toString()
@@ -107,6 +107,11 @@ function startGame(username: string) {
   
     // draw leaderboard
     leaderboard.update(message, client.getId())
+
+    // test dead
+    if(player != undefined && player.state instanceof Object && "Dead" in player.state) {
+      (document.getElementById("retry") as HTMLDivElement).classList.add("open")
+    }
   }
 }
 

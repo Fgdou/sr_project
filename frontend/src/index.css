@@ -22,6 +22,7 @@ canvas {
     background-repeat: repeat;
     margin: 0;
     padding: 0;
+    position: relative;
 }
 canvas, .canvas {
     width: min(100vw, 70vh);
@@ -139,8 +140,17 @@ button.button:hover {
     transform: scale(1.1);
 }
 
+@keyframes bluring {
+    0% {
+        backdrop-filter: blur(0px);
+    }
+    100% {
+        backdrop-filter: blur(10px); 
+    }
+}
 #retry.open {
     display: flex;
+    animation: bluring 4s linear 0s 1;
 }
 #retry {
     display: none;
@@ -148,6 +158,12 @@ button.button:hover {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(10px); 
 }
 #retry .title {
     text-align: center;
