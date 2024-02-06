@@ -317,4 +317,85 @@ mod tests {
         assert_eq!(PlayerState::Dead(12), player.state);
         assert_eq!(Vector2::new(3, 0), player.head());
     }
+    #[test]
+    fn test_move_not_running() {
+        let mut player = example_player();
+        let pos = player.positions.clone();
+
+        let states = vec!(
+            PlayerState::Waiting(0),
+            PlayerState::Connecting,
+            PlayerState::Dead(0),
+        );
+
+        states.into_iter().for_each(|s| {
+            player.state = s;
+            player.update(&Vector2::new(10, 10));
+            assert_eq!(pos, player.positions);
+        })
+    }
+    #[test]
+    fn test_kill_running() {
+        let mut player = example_player();
+        player.kill();
+        assert_eq!(PlayerState::Dead(12), player.state);
+    }
+    #[test]
+    fn test_diffs() {
+        let mut player = example_player();
+
+        assert_eq!(Vec::<Event>::new(), player.diffs);
+
+        player.update(&Vector2::new(10, 10));
+
+        assert_eq!(Vec::<Event>::new(), player.diffs);
+
+        player.set_direction(Direction::Left);
+
+        assert_eq!(vec!(
+            Event::MovePlayer {dir: Direction::Left, id: 0}
+        ), player.diffs);
+
+        player.update(&Vector2::new(10, 10));
+
+        assert_eq!(vec!(
+            Event::MovePlayer {dir: Direction::Left, id: 0}
+        ), player.diffs);
+
+        player.increase();
+
+        assert_eq!(vec!(
+            Event::MovePlayer {dir: Direction::Left, id: 0},
+            Event::IncreasePlayer(0)
+        ), player.diffs);
+
+        player.kill();
+
+        assert_eq!(vec!(
+            Event::MovePlayer {dir: Direction::Left, id: 0},
+            Event::IncreasePlayer(0),
+            Event::ChangeStatePlayer{id: 0, state: PlayerState::Dead(12)},
+        ), player.diff());
+        assert_eq!(Vec::<Event>::new(), player.diff());
+
+
+    }
+    #[test]
+    fn test_opposite_direction(){
+        let mut player = example_player();
+
+        assert_eq!(Direction::Up, player.direction);
+
+        player.set_direction(Direction::Left);
+        assert_eq!(Direction::Left, player.direction);
+
+        player.set_direction(Direction::Right);
+        assert_eq!(Direction::Left, player.direction);
+
+        player.set_direction(Direction::Down);
+        assert_eq!(Direction::Down, player.direction);
+
+        player.set_direction(Direction::Up);
+        assert_eq!(Direction::Down, player.direction);
+    }
 }
