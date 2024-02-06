@@ -22,6 +22,9 @@ impl Vector2 {
         }
     }
     pub fn rand(max: &Vector2) -> Vector2 {
+        if max.x == 0 || max.y == 0 {
+            return Vector2::zero();
+        }
         let mut rng = rand::thread_rng();
         Vector2{
             x: rng.gen_range(0..max.x),

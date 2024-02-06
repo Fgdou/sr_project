@@ -144,8 +144,9 @@ impl Game {
             let founded = (-radius..=radius).zip(-radius..=radius)
                 .into_iter()
                 .map(|(x, y)| pos.clone() + Vector2::new(x, y))
-                .filter(|p| p.x >= 0 && p.y >= 0 && p.x < self.size.x && p.y < self.size.y)
-                .any(|p| self.clients.iter().any(|player| player.player().intersect(&p)));
+                .any(|p| 
+                        !(p.x >= 0 && p.y >= 0 && p.x < self.size.x && p.y < self.size.y) || 
+                        self.clients.iter().any(|player| player.player().intersect(&p)));
 
             if founded {
                 None
@@ -209,5 +210,35 @@ impl Game {
             }
             _ => ()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_free_space_empty(){
+        let mut game = Game::new();
+        game.size = Vector2::zero();
+
+        assert_eq!(None, game.get_free_space(0))
+    }
+
+    #[test]
+    fn get_free_space_one_zero(){
+        let mut game = Game::new();
+        game.size = Vector2::new(1, 1);
+
+        assert_eq!(Some(Vector2::new(0,0)), game.get_free_space(0));
+        assert_eq!(None, game.get_free_space(1));
+    }
+
+    #[test]
+    fn get_free_space(){
+        let mut game = Game::new();
+        game.size = Vector2::new(5, 5);
+
+        assert_eq!(Some(Vector2::new(2,2)), game.get_free_space(2));
     }
 }
