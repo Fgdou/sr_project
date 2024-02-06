@@ -1,6 +1,7 @@
 import { Infos } from "../../backend/bindings/Infos";
 import {Canvas} from "./Canvas.js"
 import { Client } from "./Client.js";
+import { Deadscreen } from "./Deadscreen.js";
 import { ErrorBanner } from "./ErrorBanner.js";
 import { Game } from "./Game.js";
 import { registerLoginCallback } from "./LoginWindow.js";
@@ -14,6 +15,7 @@ if(error != undefined) {
 }
 
 let username = getUsername()
+let time = 0;
 
 if(username != undefined) {
   startGame(username)
@@ -71,6 +73,10 @@ function startGame(username: string) {
     canvas.setGridSize(message.size)
 
     let player = getPlayer(message, client.getId())
+
+    if (player?.state == "Running") {
+      time += 300
+    }
   
     // apples
     message.apples.forEach(apple => canvas.drawRectangle(apple, "red"))
@@ -109,8 +115,8 @@ function startGame(username: string) {
     leaderboard.update(message, client.getId())
 
     // test dead
-    if(player != undefined && player.state instanceof Object && "Dead" in player.state) {
-      (document.getElementById("retry") as HTMLDivElement).classList.add("open")
+    if(player != undefined && player.state instanceof Object && "Dead" in player.state && player.state.Dead == 12) {
+      new Deadscreen(player, message.players, time/1000)
     }
   }
 }

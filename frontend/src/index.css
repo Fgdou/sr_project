@@ -165,6 +165,9 @@ button.button:hover {
     bottom: 0;
     backdrop-filter: blur(10px); 
 }
+#retry-table {
+    border-spacing: 10px;
+}
 #retry .title {
     text-align: center;
     font-size: 200%;
