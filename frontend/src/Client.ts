@@ -59,6 +59,9 @@ export class Client {
                     this.socket?.addEventListener("close", () => {
                         this.handleError("Diconnected from server")
                     })
+                    this.socket?.addEventListener("error", () => {
+                        this.handleError("Connection error")
+                    })
                     
                     // Connection opened
                     console.log(`Hello ${username}`)
