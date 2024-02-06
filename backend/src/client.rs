@@ -2,7 +2,7 @@ use std::net::TcpStream;
 
 use websocket::{sync::Writer, OwnedMessage};
 
-use crate::objects::{Direction, MessageServer, Player};
+use crate::objects::{Direction, MessageServer, Player, Vector2};
 
 pub struct Client {
     player: Player,
@@ -16,7 +16,7 @@ impl Client {
             MessageServer::Error(error) => println!("Error for {} : {}", self.player.username(), error),
             _ => ()
         }
-        let _ = self.writer.send_message::<OwnedMessage>(&message.into());
+        self.send_raw_message(&message.into());
     }
     pub fn new(player: Player, writer: Writer<TcpStream>) -> Self {
         Self {
@@ -34,7 +34,7 @@ impl Client {
     pub fn send_raw_message(&mut self, message: &OwnedMessage) {
         let _ = self.writer.send_message(message);
     }
-    pub fn get_next_move(&mut self) -> Option<Direction> {
+    fn get_next_move(&mut self) -> Option<Direction> {
         self.next_move.pop()
     }
     pub fn add_next_move(&mut self, direction: Direction) {
@@ -42,5 +42,11 @@ impl Client {
             self.next_move.pop();
         }
         self.next_move.insert(0, direction);
+    }
+    pub fn update(&mut self, size: &Vector2) {
+        if let Some(dir) = self.get_next_move() {
+            self.player.set_direction(dir.clone());
+        }
+        self.player.update(size)
     }
 }

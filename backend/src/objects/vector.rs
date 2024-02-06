@@ -1,5 +1,6 @@
 use std::ops::Add;
 
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 #[derive(TS)]
@@ -18,6 +19,13 @@ impl Vector2 {
         Self {
             x: 0,
             y: 0
+        }
+    }
+    pub fn rand(max: &Vector2) -> Vector2 {
+        let mut rng = rand::thread_rng();
+        Vector2{
+            x: rng.gen_range(0..max.x),
+            y: rng.gen_range(0..max.y),
         }
     }
 }

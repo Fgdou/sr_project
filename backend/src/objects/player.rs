@@ -56,7 +56,7 @@ impl Player {
                     Direction::Left => Vector2::new(-1, 0),
                     Direction::Right => Vector2::new(1, 0),
                 };
-                let new_pos = self.positions.last().unwrap().clone() + dir;
+                let new_pos = self.head() + dir;
                 if new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= size.x || new_pos.y >= size.y {
                     self.kill();
                 } else {
@@ -76,29 +76,25 @@ impl Player {
         self.positions.insert(0, pos);
         self.diffs.push(Event::IncreasePlayer(self.id))
     }
+    pub fn intersect(&self, pos: &Vector2) -> bool {
+        self.positions.iter().any(|p| p == pos)
+    }
     pub fn intersect_apple(&self, apple: &Vector2) -> bool {
-        self.positions.iter().any(|p| p == apple)
+        &self.head() == apple
+    }
+    fn head(&self) -> Vector2 {
+        self.positions.last().unwrap().clone()
     }
     pub fn intersect_player(&self, other: &Player) -> bool {
         if other == self {
             other.positions[0..other.positions.len()-1].contains(self.positions.last().unwrap())
         } else {
-            other.positions.contains(self.positions.last().unwrap())
+            other.intersect(&self.head())
         }
     }
-    pub fn kill(&mut self) -> Vec<Vector2> {
+    pub fn kill(&mut self) {
         if self.state == PlayerState::Running {
             self.set_state(PlayerState::Dead(12));
-            self.positions.iter()
-                .filter_map(|p| {
-                    if rand::random::<u8>() < u8::MAX/4 {
-                        Some(p.clone())
-                    } else {
-                        None
-                    }
-                }).collect()
-        } else {
-            Vec::new()
         }
     }
     pub fn set_username(&mut self, username: String) {
@@ -110,9 +106,6 @@ impl Player {
     }
     pub fn id(&self) -> i32 {
         self.id
-    }
-    pub fn positions(&self) -> &Vec<Vector2> {
-        &self.positions
     }
     pub fn set_direction(&mut self, direction: Direction) {
         if self.direction.reverse() != direction {

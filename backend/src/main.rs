@@ -51,8 +51,8 @@ fn main() {
 
     println!("Listening to 0.0.0.0:8080");
 
-    let game_copy = game.clone();
-    thread::spawn(move || handle_loop(game_copy));
+    let game_ref_copy = game.clone();
+    thread::spawn(move || handle_loop(game_ref_copy));
 
     for request in server.filter_map(Result::ok) {
         let game = game.clone();

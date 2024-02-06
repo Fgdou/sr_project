@@ -1,10 +1,9 @@
-use rand::Rng;
 use websocket::OwnedMessage;
 
 use crate::{client::Client, objects::{Event, Infos, MessageClient, MessageServer, Player, PlayerState, Vector2}};
 
 pub struct Game {
-    players: Vec<Client>,
+    clients: Vec<Client>,
     size: Vector2,
     apples: Vec<Vector2>,
     last_players: Vec<Player>,
@@ -16,7 +15,7 @@ pub struct Game {
 impl Game {
     pub fn new() -> Self {
         Self {
-            players: Vec::new(),
+            clients: Vec::new(),
             size: Vector2::new(30, 30),
             apples: Vec::new(),
             last_apples: Vec::new(),
@@ -26,10 +25,10 @@ impl Game {
         }
     }
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
-        self.players.iter_mut().find(|p| p.player().id() == id)
+        self.clients.iter_mut().find(|p| p.player().id() == id)
     }
     pub fn get_infos(&self) -> Infos {
-        let all_players: Vec<Player> = self.players.iter()
+        let all_players: Vec<Player> = self.clients.iter()
             .map(|p| p.player().clone()).collect();
         let apples = self.apples.clone();
 
@@ -41,114 +40,144 @@ impl Game {
         }
     }
     pub fn add_client(&mut self, mut client: Client) {
-        let pos = self.free_space(3);
+        let pos = self.get_free_space(3);
 
         if let Some(pos) = pos {
             (0..3).for_each(|i| client.player_mut().add_position(pos.clone() + Vector2::new(0, i)));
 
             client.send_message(&MessageServer::Infos(self.get_infos()));
             self.diffs.push(Event::AddPlayer(client.player().clone()));
-            self.players.push(client);
+            self.clients.push(client);
         } else {
             client.send_message(&MessageServer::Error("No space available".to_string()));
         }        
     }
     pub fn next_id(&self) -> i32 {
-        (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.player().id() != i)).unwrap_or(0)
+        (0..i32::MAX).into_iter().find(|i| self.clients.iter().all(|p| &p.player().id() != i)).unwrap_or(0)
     }
-    pub fn tick(&mut self) {
-        // apples
+    fn tick_apple(&mut self) {
         while self.apples.len() < 10 {
-            let mut rng = rand::thread_rng();
-            let pos = Vector2{
-                x: rng.gen_range(0..self.size.x),
-                y: rng.gen_range(0..self.size.y),
-            };
+            let pos = Vector2::rand(&self.size);
             if self.apples.iter().all(|a| a != &pos) {
                 self.apples.push(pos.clone());
                 self.diffs.push(Event::AddApple(pos));
             }
         }
-
+    }
+    pub fn players_running(&self) -> Vec<&Player> {
+        self.clients.iter()
+            .map(|client| client.player())
+            .filter(|player| player.state() == &PlayerState::Running)
+            .collect()
+    }
+    pub fn players_running_mut(&mut self) -> Vec<&mut Player> {
+        self.clients.iter_mut()
+            .map(|client| client.player_mut())
+            .filter(|player| player.state() == &PlayerState::Running)
+            .collect()
+    }
+    fn tick_players(&mut self) {
         // players
-        self.players.iter_mut().for_each(|p| {
-            if let Some(dir) = p.get_next_move() {
-                p.player_mut().set_direction(dir.clone());
-            }
-            p.player_mut().update(&self.size)
+        self.clients.iter_mut().for_each(|client| {
+            client.update(&self.size);
         });
 
         // collision
-        let players: Vec<Player> = self.players.iter()
-            .filter(|p| p.player().state() == &PlayerState::Running)
-            .map(|p| p.player().clone()).collect();
-        self.players.iter_mut()
-            .filter(|p| p.player().state() == &PlayerState::Running)
-            .filter(|p1| players.iter().any(|p2| p1.player().intersect_player(&p2)))
-            .map(|p| p.player_mut().kill())
-            .flatten()
-            .for_each(|apple| {
-                self.apples.push(apple.clone());
-                self.diffs.push(Event::AddApple(apple));
-            });
+        let players: Vec<Player> = self.players_running()
+            .iter()
+            .map(|p| (*p).clone())
+            .collect();
 
-
-        // apples
-        self.apples.retain(|apple| {
-            let player = self.players.iter_mut()
-                .filter(|p| p.player().state() == &PlayerState::Running)
-                .find(|p| p.player().intersect_apple(apple));
-            if let Some(player) = player {
-                player.player_mut().increase();
-                self.diffs.push(Event::RemoveApple(apple.clone()));
-                false
-            } else {
-                true
-            }
-        });
-
-        // send message
-        self.diffs.extend(self.players.iter_mut().map(|p| p.player_mut().diff()).flatten());
-        self.players.iter_mut().for_each(|p| {
+        self.players_running_mut()
+            .iter_mut()
+            .filter(|p1| players.iter().any(|p2| p1.intersect_player(&p2)))
+            .for_each(|p| p.kill());
+    }
+    fn tick_players_apples(&mut self) {
+        let apples = self.apples.clone();
+        self.apples = apples
+            .into_iter()
+            .filter(|apple| {
+                if let Some(player) = self.players_running_mut()
+                    .iter_mut()
+                    .find(|p| p.intersect_apple(apple))
+                {
+                    player.increase();
+                    self.diffs.push(Event::RemoveApple((*apple).clone()));
+                    false
+                } else {
+                    true
+                }
+            })
+            .collect();
+    }
+    fn tick_send_changes(&mut self) {
+        self.diffs.extend(self.clients.iter_mut().map(|p| p.player_mut().diff()).flatten());
+        self.clients.iter_mut().for_each(|p| {
             p.send_message(&MessageServer::ChangeInfos{events: self.diffs.clone(), count: self.message_count})
         });
         self.diffs.clear();
+    }
+    pub fn tick(&mut self) {
+        self.tick_apple();        
+        self.tick_players();
+        self.tick_players_apples();
+        self.tick_send_changes();        
 
         // update history
         self.last_apples = self.apples.clone();
-        self.last_players = self.players.iter().map(|p| p.player().clone()).collect();
+        self.last_players = self.clients.iter().map(|p| p.player().clone()).collect();
         self.message_count = self.message_count.wrapping_add(1);
     }
     pub fn remove_client(&mut self, id: i32) {
-        self.players.retain(|p| p.player().id() != id);
+        self.clients.retain(|p| p.player().id() != id);
         self.diffs.push(Event::RemovePlayer(id))
     }
-    pub fn free_space(&self, radius: i32) -> Option<Vector2> {
-        let mut rng = rand::thread_rng();
-        for _ in 0..1000 {
-            let x = rng.gen_range(0..self.size.x);
-            let y = rng.gen_range(0..self.size.y);
+    pub fn get_free_space(&self, radius: i32) -> Option<Vector2> {
+        (0..1000).into_iter().find_map(|_| {
+            let pos = Vector2::rand(&self.size);
 
-            let mut founded = false;
-            for x in x-radius..=x+radius {
-                for y in y-radius..=y+radius {
-                    if x < 0 || y < 0 || x >= self.size.x || y >= self.size.y {
-                        founded = true;
-                        continue;
-                    }
+            let founded = (-radius..=radius).zip(-radius..=radius)
+                .into_iter()
+                .map(|(x, y)| pos.clone() + Vector2::new(x, y))
+                .filter(|p| p.x >= 0 && p.y >= 0 && p.x < self.size.x && p.y < self.size.y)
+                .any(|p| self.clients.iter().any(|player| player.player().intersect(&p)));
 
-                    let pos = Vector2::new(x, y);
+            if founded {
+                None
+            } else {
+                return Some(pos)
+            }
+        })
+    }
+    fn handle_client_message(&mut self, message: MessageClient, player_id: i32) {
+        match message {
+            MessageClient::Connection(pseudo) => {
+                let existing_players: Vec<String> = self.clients.iter().map(|p| p.player().username().clone()).collect();
 
-                    if self.players.iter().any(|p| p.player().positions().iter().any(|p| p == &pos)) {
-                        founded = true;
-                    }
+                let client = self.get_client(player_id).unwrap();
+                let pseudo = pseudo.trim();
+                if pseudo.len() > 10 || pseudo.len() < 4 {
+                    client.send_message(&MessageServer::Error("Username should be between 4 and 10 characters".to_string()))
+                } else if pseudo.chars().any(|c| !c.is_alphanumeric()) {
+                    client.send_message(&MessageServer::Error("Username should be only numbers and letters".to_string()))
+                } else if existing_players.contains(&pseudo.to_string()) {
+                    client.send_message(&MessageServer::Error("Username already exists".to_string()))
+                } else {
+                    client.player_mut().set_username(pseudo.to_string());
                 }
+            },
+            MessageClient::ChangeDirection(direction) => {
+                let client = self.get_client(player_id).unwrap();
+                client.add_next_move(direction)
+            },
+            MessageClient::ResendAll => {
+                let infos = self.get_infos();
+                let client = self.get_client(player_id).unwrap();
+                client.send_message(&MessageServer::Infos(infos))
             }
-            if !founded {
-                return Some(Vector2::new(x, y));
-            }
+            
         }
-        None
     }
     pub fn handle_message(&mut self, message: OwnedMessage, player_id: i32) {
         match message {
@@ -167,30 +196,7 @@ impl Game {
             OwnedMessage::Text(value) => {
                 let message = serde_json::from_str(value.as_str());
                 match message {
-                    Ok(MessageClient::Connection(pseudo)) => {
-                        let existing_players: Vec<String> = self.players.iter().map(|p| p.player().username().clone()).collect();
-
-                        let client = self.get_client(player_id).unwrap();
-                        let pseudo = pseudo.trim();
-                        if pseudo.len() > 10 || pseudo.len() < 4 {
-                            client.send_message(&MessageServer::Error("Username should be between 4 and 10 characters".to_string()))
-                        } else if pseudo.chars().any(|c| !c.is_alphanumeric()) {
-                            client.send_message(&MessageServer::Error("Username should be only numbers and letters".to_string()))
-                        } else if existing_players.contains(&pseudo.to_string()) {
-                            client.send_message(&MessageServer::Error("Username already exists".to_string()))
-                        } else {
-                            client.player_mut().set_username(pseudo.to_string());
-                        }
-                    },
-                    Ok(MessageClient::ChangeDirection(direction)) => {
-                        let client = self.get_client(player_id).unwrap();
-                        client.add_next_move(direction)
-                    },
-                    Ok(MessageClient::ResendAll) => {
-                        let infos = self.get_infos();
-                        let client = self.get_client(player_id).unwrap();
-                        client.send_message(&MessageServer::Infos(infos))
-                    }
+                    Ok(message) => self.handle_client_message(message, player_id),
                     Err(_) => {
                         let client = self.get_client(player_id).unwrap();
                         client.send_message(&MessageServer::Error("Fail to interpret message".to_string()));
