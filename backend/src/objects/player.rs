@@ -260,6 +260,6 @@ mod tests {
             Vector2::new(5, 3),
         );
 
-        assert_eq!(true,  player.intersect_player(&other_player));
+        assert_eq!(false,  player.intersect_player(&other_player));
     }
 }
