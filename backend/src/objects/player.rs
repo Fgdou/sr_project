@@ -11,6 +11,8 @@ pub struct Player {
     positions: Vec<Vector2>,
     direction: Direction,
     state: PlayerState,
+
+    #[ts(skip)]
     diffs: Vec<Event>
 }
 
