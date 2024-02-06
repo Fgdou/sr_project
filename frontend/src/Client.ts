@@ -2,6 +2,7 @@ import { Event } from "../../backend/bindings/Event.js";
 import { Infos } from "../../backend/bindings/Infos.js";
 import { MessageClient } from "../../backend/bindings/MessageClient.js";
 import { MessageServer } from "../../backend/bindings/MessageServer.js";
+import { ErrorBanner } from "./ErrorBanner.js";
 import { MessageTPSSmoother } from "./MessageTPSSmoother.js";
 import { getSocket } from "./utils.js";
 
@@ -32,6 +33,7 @@ export class Client {
         }, false);
 
         (async () => {
+            let founded = false
             for(let url of urls){
                 try{
                     this.socket = await getSocket(url)
@@ -54,15 +56,21 @@ export class Client {
                         if ("Error" in message)
                             this.handleError(message.Error)
                     });
+                    this.socket?.addEventListener("close", () => {
+                        this.handleError("Diconnected from server")
+                    })
                     
                     // Connection opened
                     console.log(`Hello ${username}`)
                     this.sendMessage({
                         Connection: username
                     })
+                    founded = true
                     break
                 } catch (e) {}
             }
+            if(!founded)
+                new ErrorBanner("Unable to connect to server", true)
         })()
     }
 
