@@ -26,7 +26,7 @@ impl Game {
         }
     }
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
-        self.players.iter_mut().find(|p| p.player().get_id() == id)
+        self.players.iter_mut().find(|p| p.player().id() == id)
     }
     pub fn get_infos(&self) -> Infos {
         let all_players: Vec<Player> = self.players.iter()
@@ -54,7 +54,7 @@ impl Game {
         }        
     }
     pub fn next_id(&self) -> i32 {
-        (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.player().get_id() != i)).unwrap_or(0)
+        (0..i32::MAX).into_iter().find(|i| self.players.iter().all(|p| &p.player().id() != i)).unwrap_or(0)
     }
     pub fn tick(&mut self) {
         // apples
@@ -80,10 +80,10 @@ impl Game {
 
         // collision
         let players: Vec<Player> = self.players.iter()
-            .filter(|p| p.player().get_state() == &PlayerState::Running)
+            .filter(|p| p.player().state() == &PlayerState::Running)
             .map(|p| p.player().clone()).collect();
         self.players.iter_mut()
-            .filter(|p| p.player().get_state() == &PlayerState::Running)
+            .filter(|p| p.player().state() == &PlayerState::Running)
             .filter(|p1| players.iter().any(|p2| p1.player().intersect_player(&p2)))
             .map(|p| p.player_mut().kill())
             .flatten()
@@ -96,7 +96,7 @@ impl Game {
         // apples
         self.apples.retain(|apple| {
             let player = self.players.iter_mut()
-                .filter(|p| p.player().get_state() == &PlayerState::Running)
+                .filter(|p| p.player().state() == &PlayerState::Running)
                 .find(|p| p.player().intersect_apple(apple));
             if let Some(player) = player {
                 player.player_mut().increase();
@@ -120,7 +120,7 @@ impl Game {
         self.message_count = self.message_count.wrapping_add(1);
     }
     pub fn remove_client(&mut self, id: i32) {
-        self.players.retain(|p| p.player().get_id() != id);
+        self.players.retain(|p| p.player().id() != id);
         self.diffs.push(Event::RemovePlayer(id))
     }
     pub fn free_space(&self, radius: i32) -> Option<Vector2> {
@@ -139,7 +139,7 @@ impl Game {
 
                     let pos = Vector2::new(x, y);
 
-                    if self.players.iter().any(|p| p.player().get_positions().iter().any(|p| p == &pos)) {
+                    if self.players.iter().any(|p| p.player().positions().iter().any(|p| p == &pos)) {
                         founded = true;
                     }
                 }
@@ -156,7 +156,7 @@ impl Game {
                 let client = self.get_client(player_id).unwrap();
                 let message = OwnedMessage::Close(None);
                 let _ = client.send_raw_message(&message);
-                println!("Client {}:{} disconnected", client.player().get_id(), client.player().get_username());
+                println!("Client {}:{} disconnected", client.player().id(), client.player().username());
                 return;
             }
             OwnedMessage::Ping(ping) => {
@@ -168,7 +168,7 @@ impl Game {
                 let message = serde_json::from_str(value.as_str());
                 match message {
                     Ok(MessageClient::Connection(pseudo)) => {
-                        let existing_players: Vec<String> = self.players.iter().map(|p| p.player().get_username().clone()).collect();
+                        let existing_players: Vec<String> = self.players.iter().map(|p| p.player().username().clone()).collect();
 
                         let client = self.get_client(player_id).unwrap();
                         let pseudo = pseudo.trim();

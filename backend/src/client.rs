@@ -13,7 +13,7 @@ pub struct Client {
 impl Client {
     pub fn send_message(&mut self, message: &MessageServer) {
         match message {
-            MessageServer::Error(error) => println!("Error for {} : {}", self.player.get_username(), error),
+            MessageServer::Error(error) => println!("Error for {} : {}", self.player.username(), error),
             _ => ()
         }
         let _ = self.writer.send_message::<OwnedMessage>(&message.into());

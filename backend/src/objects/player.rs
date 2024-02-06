@@ -108,10 +108,10 @@ impl Player {
             self.diffs.push(Event::SetUsername { id: self.id, name: username })
         }
     }
-    pub fn get_id(&self) -> i32 {
+    pub fn id(&self) -> i32 {
         self.id
     }
-    pub fn get_positions(&self) -> &Vec<Vector2> {
+    pub fn positions(&self) -> &Vec<Vector2> {
         &self.positions
     }
     pub fn set_direction(&mut self, direction: Direction) {
@@ -123,10 +123,10 @@ impl Player {
     pub fn add_position(&mut self, position: Vector2) {
         self.positions.insert(0, position)
     }
-    pub fn get_state(&self) -> &PlayerState {
+    pub fn state(&self) -> &PlayerState {
         &self.state
     }
-    pub fn get_username(&self) -> &String {
+    pub fn username(&self) -> &String {
         &self.username
     }
     pub fn diff(&mut self) -> Vec<Event> {
