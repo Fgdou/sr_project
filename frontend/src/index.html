@@ -16,7 +16,17 @@
         </div>
         <div class="container" id="game">
             <div class="playerInfos"><div class="username_logout"><a onclick="logout()" id="logout" href="#">X</a><span id="username_name">Username</span></div><span id="score">Score</span></div>
-            <div class="canvas"><canvas id="canvas" height="1000px" width="1000px"></canvas></div>
+            <div class="canvas">
+                <canvas id="canvas" height="1000px" width="1000px"></canvas>
+                <div id="retry">
+                    <div class="title">You are <span>dead</span>.</div>
+                    <table id="retry-table">
+                    </table>
+                    <div class="buttons">
+                        <button class="button" onclick="logout()">Logout</button><button onclick="location.reload()" class="primary button">Retry</button>
+                    </div>
+                </div>
+            </div>
             <div class="leaderboard">
                 <table id="leaderboard"></table>
             </div>

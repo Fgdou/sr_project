@@ -22,6 +22,7 @@ canvas {
     background-repeat: repeat;
     margin: 0;
     padding: 0;
+    position: relative;
 }
 canvas, .canvas {
     width: min(100vw, 70vh);
@@ -118,6 +119,65 @@ canvas, .canvas {
     outline: none;
 }
 
+button.button {
+    box-shadow: 0 0 10px 0px #0dce749f;
+    padding: 10px 20px;
+    border-radius: 30px;
+    background-color: inherit;
+    color: inherit;
+    border: none;
+    text-decoration: none;
+    margin: 10px;
+    font-size: 170%;
+    cursor: pointer;
+    transition: transform 10ms;
+}
+button.button.primary {
+    background-color: #0dce74;
+    font-weight: bold;
+}
+button.button:hover {
+    transform: scale(1.1);
+}
+
+@keyframes bluring {
+    0% {
+        backdrop-filter: blur(0px);
+    }
+    100% {
+        backdrop-filter: blur(10px); 
+    }
+}
+#retry.open {
+    display: flex;
+    animation: bluring 4s ease-in 0s 1;
+}
+#retry {
+    display: none;
+    gap: 20px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(10px); 
+}
+#retry-table {
+    border-spacing: 10px;
+}
+#retry .title {
+    text-align: center;
+    font-size: 200%;
+}
+#retry .title span {
+    color: #0dce74;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 #game {
     flex-direction: column;
 }
@@ -154,6 +214,8 @@ canvas, .canvas {
     background-size: contain;
     background-repeat: no-repeat;
     transform: scale(0);
+}
+.canvas.animate::after {
     animation: zoomStart 1s cubic-bezier(0.01, 1.26, 0.55, 0.68);
 }
 
