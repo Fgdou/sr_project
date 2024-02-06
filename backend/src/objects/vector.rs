@@ -45,3 +45,29 @@ impl PartialEq for Vector2 {
         self.x == other.x && self.y == other.y
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        let v1 = Vector2::new(0, 0);
+        let v2 = Vector2::new(0, 0);
+        let expected = Vector2::new(0, 0);
+
+        assert_eq!(expected, v1+v2);
+
+        let v1 = Vector2::new(1, 2);
+        let v2 = Vector2::new(3, 4);
+        let expected = Vector2::new(4, 6);
+
+        assert_eq!(expected, v1+v2);
+    }
+
+    #[test]
+    fn test_eq() {
+        assert!(Vector2::new(28, 45) == Vector2::new(28, 44) + Vector2::new(0, 1));
+        assert!(Vector2::new(28, 45) != Vector2::new(28, 44) + Vector2::new(0, 2));
+    }
+}
