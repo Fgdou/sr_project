@@ -70,7 +70,7 @@ export class Client {
                 } catch (e) {}
             }
             if(!founded)
-                new ErrorBanner("Unable to connect to server", true)
+                this.handleError("Unable to connect to server")
         })()
     }
 
