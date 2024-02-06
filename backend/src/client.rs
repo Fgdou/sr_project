@@ -5,9 +5,9 @@ use websocket::{sync::Writer, OwnedMessage};
 use crate::objects::{Direction, MessageServer, Player};
 
 pub struct Client {
-    pub player: Player,
-    pub writer: Writer<TcpStream>,
-    pub next_move: Vec<Direction>,
+    player: Player,
+    writer: Writer<TcpStream>,
+    next_move: Vec<Direction>,
 }
 
 impl Client {
@@ -24,5 +24,23 @@ impl Client {
             writer,
             next_move: Vec::new()
         }
+    }
+    pub fn player(&self) -> &Player {
+        &self.player
+    }
+    pub fn player_mut(&mut self) -> &mut Player {
+        &mut self.player
+    }
+    pub fn send_raw_message(&mut self, message: &OwnedMessage) {
+        let _ = self.writer.send_message(message);
+    }
+    pub fn get_next_move(&mut self) -> Option<Direction> {
+        self.next_move.pop()
+    }
+    pub fn add_next_move(&mut self, direction: Direction) {
+        if self.next_move.len() > 3 {
+            self.next_move.pop();
+        }
+        self.next_move.insert(0, direction);
     }
 }

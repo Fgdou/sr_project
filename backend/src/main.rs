@@ -41,7 +41,7 @@ fn main() {
                 let id = game.next_id();
 
                 let mut player = Client::new(Player::new(id), sender);
-                player.send_message(&MessageServer::SetId(player.player.get_id()));
+                player.send_message(&MessageServer::SetId(id));
                 game.add_client(player);
                 id
             };
