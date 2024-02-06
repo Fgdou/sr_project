@@ -1,6 +1,10 @@
-use websocket::OwnedMessage;
+use std::net::TcpStream;
 
-use crate::{client::Client, objects::{Event, Infos, MessageClient, MessageServer, Player, PlayerState, Vector2}};
+use websocket::{sync::Writer, OwnedMessage};
+
+use crate::{client, objects::{Event, Infos, MessageClient, MessageServer, Player, PlayerState, Vector2}};
+
+type Client = client::Client<Writer<TcpStream>>;
 
 pub struct Game {
     clients: Vec<Client>,
