@@ -57,7 +57,8 @@ export class Client {
                             this.handleError(message.Error)
                     });
                     this.socket?.addEventListener("close", () => {
-                        this.handleError("Diconnected from server")
+                        if (this.socket != undefined)
+                            this.handleError("Diconnected from server")
                     })
                     this.socket?.addEventListener("error", () => {
                         this.handleError("Connection error")
@@ -90,5 +91,9 @@ export class Client {
     }
     averagePing(): number {
         return this.messageHandler.averagePing()
+    }
+    disconnect() {
+        this.socket?.close();
+        this.socket = undefined;
     }
 }

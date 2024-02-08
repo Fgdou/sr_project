@@ -23,7 +23,7 @@ if(username != undefined) {
   registerLoginCallback(startGame)
 }
 
-
+let client_handle: Client|undefined = undefined
 function startGame(username: string) {
   let leaderboard = new Leaderboard("leaderboard");
 
@@ -50,6 +50,7 @@ function startGame(username: string) {
     if(infos != undefined)
       draw(infos)
   }, username);
+  client_handle = client
 
   document.cookie = `username=${username}`
   document.getElementById("login")?.classList.remove("open")
@@ -129,6 +130,7 @@ declare global {
 
 window.logout = (error) => {
   document.cookie = "username=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  client_handle?.disconnect();
   if (error == undefined)
     location.reload()
   else
