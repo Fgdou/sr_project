@@ -78,6 +78,12 @@ When the player connected, the game checks if there is space and if the username
 ## Game Logic
 All the game logic is based on the server, and the server handle every movement and action. How every, only the changements are sent to the player. Meaning: the player gets all the information of the game, and then gets only the new directions of the other players. This way, the networks have less data to transfer.
 
+## Player in the same position
+If 2 players goes on the same tile at once, then both player will loose. This is because the game will start by moving the player, and then check if they are colliding with other players.
+
+2 Playes can't eat the same apple, because they will die on the same tile.
+
+
 # Responsive
 The goal of the website is to be able to be played on a computer and a phone. For that, gesture and css on mobile is implemented.
 
