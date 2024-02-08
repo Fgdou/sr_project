@@ -19,13 +19,21 @@ fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync:
     let (mut receiver, sender) = ws_client.split().unwrap();
 
     let id = {
-        let mut game = game.lock().unwrap();
-        let id = game.next_id();
+        match game.lock() {
+            Ok(mut game) => {
+                let id = game.next_id();
 
-        let mut game_client = Client::new(Player::new(id), sender);
-        game_client.send_message(&MessageServer::SetId(id));
-        game.add_client(game_client);
-        id
+                let mut game_client = Client::new(Player::new(id), sender);
+                game_client.send_message(&MessageServer::SetId(id));
+                game.add_client(game_client);
+                id
+            },
+            Err(_) => {
+                println!("Error while getting an id");
+                let _ = sender.shutdown();
+                return;  
+            },
+        }
     };
 
 
