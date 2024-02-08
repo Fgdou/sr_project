@@ -1,8 +1,10 @@
 use std::{net::TcpStream, sync::{Arc, Mutex}, thread, time::Duration};
 use client::Client;
-use websocket::sync::Server;
+use websocket::sync::{Server, Writer};
 
-use crate::{game::Game, objects::{MessageServer, Player}};
+use crate::objects::{MessageServer, Player, Vector2};
+
+type Game = game::Game<Writer<TcpStream>>;
 
 mod objects;
 mod client;
@@ -19,13 +21,21 @@ fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync:
     let (mut receiver, sender) = ws_client.split().unwrap();
 
     let id = {
-        let mut game = game.lock().unwrap();
-        let id = game.next_id();
+        match game.lock() {
+            Ok(mut game) => {
+                let id = game.next_id();
 
-        let mut game_client = Client::new(Player::new(id), sender);
-        game_client.send_message(&MessageServer::SetId(id));
-        game.add_client(game_client);
-        id
+                let mut game_client = Client::new(Player::new(id), sender);
+                game_client.send_message(&MessageServer::SetId(id));
+                game.add_client(game_client);
+                id
+            },
+            Err(_) => {
+                println!("Error while getting an id");
+                let _ = sender.shutdown();
+                return;  
+            },
+        }
     };
 
 
@@ -45,7 +55,7 @@ fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync:
 
 fn main() {
 
-    let game = Arc::new(Mutex::new(Game::new()));
+    let game = Arc::new(Mutex::new(Game::new(Vector2::new(30, 30))));
 
     let server = Server::bind("0.0.0.0:8080").unwrap();
 
@@ -60,7 +70,7 @@ fn main() {
             let client = request.accept().unwrap();
             let ip = client.peer_addr().unwrap();
 
-            println!("Connection from {}", ip);
+            println!("Connection from {} : {} players", ip, game.lock().map(|g| g.number_players()).unwrap_or(0)+1);
 
             handle_new_client(game, client)
         });
