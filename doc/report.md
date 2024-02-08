@@ -73,7 +73,10 @@ The docker build time was 2 minutes for each commit and pull request. This is a 
 
 # Decision of the game
 ## Connection
-When 
+When the player connected, the game checks if there is space and if the username is correct. If so, the player is placed and allowed to play.
+
+## Game Logic
+All the game logic is based on the server, and the server handle every movement and action. How every, only the changements are sent to the player. Meaning: the player gets all the information of the game, and then gets only the new directions of the other players. This way, the networks have less data to transfer.
 
 # Responsive
 The goal of the website is to be able to be played on a computer and a phone. For that, gesture and css on mobile is implemented.
