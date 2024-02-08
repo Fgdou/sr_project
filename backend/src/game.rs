@@ -1,13 +1,11 @@
-use std::net::TcpStream;
+use websocket::OwnedMessage;
 
-use websocket::{sync::Writer, OwnedMessage};
+use crate::{client::{self, WriterInterface}, objects::{Event, Infos, MessageClient, MessageServer, Player, PlayerState, Vector2}};
 
-use crate::{client, objects::{Event, Infos, MessageClient, MessageServer, Player, PlayerState, Vector2}};
+type Client<T> = client::Client<T>;
 
-type Client = client::Client<Writer<TcpStream>>;
-
-pub struct Game {
-    clients: Vec<Client>,
+pub struct Game<T> {
+    clients: Vec<Client<T>>,
     size: Vector2,
     apples: Vec<Vector2>,
     last_players: Vec<Player>,
@@ -16,11 +14,11 @@ pub struct Game {
     message_count: u32,
 }
 
-impl Game {
-    pub fn new() -> Self {
+impl<T: WriterInterface> Game<T> {
+    pub fn new(size: Vector2) -> Self {
         Self {
             clients: Vec::new(),
-            size: Vector2::new(30, 30),
+            size: size,
             apples: Vec::new(),
             last_apples: Vec::new(),
             last_players: Vec::new(),
@@ -28,7 +26,10 @@ impl Game {
             message_count: 0,
         }
     }
-    pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
+    pub fn number_players(&self) -> i32 {
+        self.clients.len() as i32
+    }
+    pub fn get_client(&mut self, id: i32) -> Option<&mut Client<T>> {
         self.clients.iter_mut().find(|p| p.player().id() == id)
     }
     pub fn get_infos(&self) -> Infos {
@@ -43,7 +44,7 @@ impl Game {
             message_count: self.message_count
         }
     }
-    pub fn add_client(&mut self, mut client: Client) {
+    pub fn add_client(&mut self, mut client: Client<T>) {
         let pos = self.get_free_space(3);
 
         if let Some(pos) = pos {
@@ -193,12 +194,17 @@ impl Game {
         }
     }
     pub fn handle_message(&mut self, message: OwnedMessage, player_id: i32) {
+        if self.get_client(player_id).is_none() {
+            println!("Discard {}", player_id);
+            return
+        }
         match message {
             OwnedMessage::Close(_) => {
+                let number_players = self.clients.len();
                 let client = self.get_client(player_id).unwrap();
                 let message = OwnedMessage::Close(None);
                 let _ = client.send_raw_message(&message);
-                println!("Client {}:{} disconnected", client.player().id(), client.player().username());
+                println!("Client {}:{} disconnected : {} players", client.player().id(), client.player().username(), number_players-1);
                 return;
             }
             OwnedMessage::Ping(ping) => {
@@ -223,11 +229,27 @@ impl Game {
 
 #[cfg(test)]
 mod tests {
+    use self::client::WriterInterface;
     use super::*;
+
+    struct Writer;
+    impl WriterInterface for Writer {
+        fn send_message(&mut self, _: &websocket::OwnedMessage) {}
+    }
+
+    fn client_example() -> client::Client<Writer> {
+        client::Client::new(Player::new(0), Writer{})
+    }
+    type Game = super::Game<Writer>;
+
+    fn game_example() -> Game {
+        Game::new(Vector2::new(30, 30))
+    }
+
 
     #[test]
     fn get_free_space_empty(){
-        let mut game = Game::new();
+        let mut game = game_example();
         game.size = Vector2::zero();
 
         assert_eq!(None, game.get_free_space(0))
@@ -235,7 +257,7 @@ mod tests {
 
     #[test]
     fn get_free_space_one_zero(){
-        let mut game = Game::new();
+        let mut game = game_example();
         game.size = Vector2::new(1, 1);
 
         assert_eq!(Some(Vector2::new(0,0)), game.get_free_space(0));
@@ -244,7 +266,7 @@ mod tests {
 
     #[test]
     fn get_free_space(){
-        let mut game = Game::new();
+        let mut game = game_example();
         game.size = Vector2::new(5, 5);
 
         assert_eq!(Some(Vector2::new(2,2)), game.get_free_space(2));
@@ -252,7 +274,7 @@ mod tests {
 
     #[test]
     fn check_pseudo_size() {
-        let game = Game::new();
+        let game = game_example();
 
         assert!(game.check_pseudo("Hey".to_string()).is_err());
         assert!(game.check_pseudo("Heyy".to_string()).is_ok());
@@ -263,7 +285,7 @@ mod tests {
 
     #[test]
     fn check_pseudo_special_char() {
-        let game = Game::new();
+        let game = game_example();
 
         assert!(game.check_pseudo("Heyy".to_string()).is_ok());
         assert!(game.check_pseudo("hey146".to_string()).is_ok());
@@ -273,5 +295,15 @@ mod tests {
         assert!(game.check_pseudo("He ee".to_string()).is_err());
         assert!(game.check_pseudo("He_ee".to_string()).is_err());
         assert!(game.check_pseudo("He-ee".to_string()).is_err());
+    }
+    #[test]
+    fn check_pseudo_exists() {
+        let mut game = game_example();
+        let mut client = client_example();
+        client.player_mut().set_username("player1".to_string());
+
+        assert!(game.check_pseudo("player1".to_string()).is_ok());
+        game.add_client(client);
+        assert!(game.check_pseudo("player1".to_string()).is_err());
     }
 }
