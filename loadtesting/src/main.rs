@@ -17,12 +17,7 @@ fn main() {
     let mut state = State::Growing(0);
     let start = Local::now();
 
-    loop {
-        let diff = Local::now().signed_duration_since(start);
-        if diff.num_seconds() > 60 {
-            state = State::Stable { target: clients.len() as i32, t: 0 }
-        }
-        
+    loop {        
         let count = clients.len();
         clients.retain(|c| !c.has_failed());
         
@@ -38,8 +33,12 @@ fn main() {
                 clients.push(Client::new(id, 500));
                 id += 1;
 
-                if average > 400 {
+                if average > 500 {
                     state = State::Stable{t: 0, target: clients.len() as i32};
+                }
+                let diff = Local::now().signed_duration_since(start);
+                if diff.num_seconds() > 60 {
+                    state = State::Stable { target: clients.len() as i32, t: 0 }
                 }
             },
             State::Stable{target, t: _} => {

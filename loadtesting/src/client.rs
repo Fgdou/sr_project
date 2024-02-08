@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex}, thread::{self, JoinHandle}, time::Duration};
+use std::{ops::Sub, sync::{Arc, Mutex}, thread::{self, JoinHandle}, time::Duration};
 
 use websocket::{ClientBuilder, OwnedMessage};
 
@@ -52,7 +52,7 @@ impl Client {
 
         let _ = client.set_nonblocking(true);
 
-        let mut last_time = Local::now();
+        let mut last_time = Local::now().sub(Duration::from_millis(300));
 
         while !failed.lock().map(|f| *f).unwrap_or(false) {
             let messages = vec![
@@ -68,15 +68,17 @@ impl Client {
                 for _ in 0..10 {
                     if let Ok(mut diffs) = diffs.lock() {
                         if let Ok(OwnedMessage::Text(message)) = client.recv_message() {
-                            
                             if message.starts_with(r#"{"ChangeInfos":"#) {
-                                let diff = Local::now().signed_duration_since(&last_time).num_milliseconds();
+                                let now = Local::now();
+                                let diff = now.signed_duration_since(&last_time).num_milliseconds();
                                 diffs.push(diff);
-                                last_time = Local::now();
+                                last_time = now;
     
-                                while diffs.len() > 10 {
+                                while diffs.len() > 50 {
                                     diffs.remove(0);
                                 }
+                            } else if message.starts_with(r#"{"Error":"#) {
+                                return None;
                             }
                         }
                     }
