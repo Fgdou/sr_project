@@ -1,8 +1,10 @@
 use std::{net::TcpStream, sync::{Arc, Mutex}, thread, time::Duration};
 use client::Client;
-use websocket::sync::Server;
+use websocket::sync::{Server, Writer};
 
-use crate::{game::Game, objects::{MessageServer, Player}};
+use crate::objects::{MessageServer, Player, Vector2};
+
+type Game = game::Game<Writer<TcpStream>>;
 
 mod objects;
 mod client;
@@ -53,7 +55,7 @@ fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync:
 
 fn main() {
 
-    let game = Arc::new(Mutex::new(Game::new()));
+    let game = Arc::new(Mutex::new(Game::new(Vector2::new(30, 30))));
 
     let server = Server::bind("0.0.0.0:8080").unwrap();
 
