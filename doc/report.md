@@ -42,6 +42,7 @@ Docker allows this app to be run on any devices. I chose to put the front and ba
 The build steps are defined in the [`Dockerfile`](../Dockerfile). To avoid CORS errors, nginx is used to link the front and backend on the same url and port.
 
 ## LoadTesting
+![loadtesting](./loadtesting.gif)
 The goal of the loadtesting is to run as many users as we can until the server slows down. To do that, the code connects in websocket to the backend, sends a user position. Then, it sends periodicly a movement to stay alive. Also, it returns the average ping.
 
 The test continues until the server cannot accept more user, the ping is too high, or the time spent is greater than 1 min. When this condition is met, the test continues for 5 seconds with the same number of players.
@@ -83,6 +84,8 @@ If 2 players goes on the same tile at once, then both player will loose. This is
 
 2 Playes can't eat the same apple, because they will die on the same tile.
 
+## Player Spawn
+A player have to have a radius of 3 blocks aroudn to be able to spawn and play.
 
 # Responsive
 The goal of the website is to be able to be played on a computer and a phone. For that, gesture and css on mobile is implemented.
