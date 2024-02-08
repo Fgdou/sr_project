@@ -158,18 +158,13 @@ impl Game {
     fn handle_client_message(&mut self, message: MessageClient, player_id: i32) {
         match message {
             MessageClient::Connection(pseudo) => {
-                let existing_players: Vec<String> = self.clients.iter().map(|p| p.player().username().clone()).collect();
+                let pseudo = self.check_pseudo(pseudo);
 
                 let client = self.get_client(player_id).unwrap();
-                let pseudo = pseudo.trim();
-                if pseudo.len() > 10 || pseudo.len() < 4 {
-                    client.send_message(&MessageServer::Error("Username should be between 4 and 10 characters".to_string()))
-                } else if pseudo.chars().any(|c| !c.is_alphanumeric()) {
-                    client.send_message(&MessageServer::Error("Username should be only numbers and letters".to_string()))
-                } else if existing_players.contains(&pseudo.to_string()) {
-                    client.send_message(&MessageServer::Error("Username already exists".to_string()))
-                } else {
-                    client.player_mut().set_username(pseudo.to_string());
+
+                match pseudo {
+                    Ok(pseudo) => client.player_mut().set_username(pseudo),
+                    Err(error) => client.send_message(&MessageServer::Error(error)),
                 }
             },
             MessageClient::ChangeDirection(direction) => {
@@ -182,6 +177,19 @@ impl Game {
                 client.send_message(&MessageServer::Infos(infos))
             }
             
+        }
+    }
+    fn check_pseudo(&self, name: String) -> Result<String, String> {
+        let pseudo = name.trim();
+        let existing_players: Vec<String> = self.clients.iter().map(|p| p.player().username().clone()).collect();
+        if pseudo.len() > 10 || pseudo.len() < 4 {
+            Err("Username should be between 4 and 10 characters".to_string())
+        } else if pseudo.chars().any(|c| !c.is_alphanumeric()) {
+            Err("Username should be only numbers and letters".to_string())
+        } else if existing_players.contains(&pseudo.to_string()) {
+            Err("Username already exists".to_string())
+        } else {
+            Ok(pseudo.to_string())
         }
     }
     pub fn handle_message(&mut self, message: OwnedMessage, player_id: i32) {
@@ -240,5 +248,30 @@ mod tests {
         game.size = Vector2::new(5, 5);
 
         assert_eq!(Some(Vector2::new(2,2)), game.get_free_space(2));
+    }
+
+    #[test]
+    fn check_pseudo_size() {
+        let game = Game::new();
+
+        assert!(game.check_pseudo("Hey".to_string()).is_err());
+        assert!(game.check_pseudo("Heyy".to_string()).is_ok());
+        assert!(game.check_pseudo("abcdefoiwu".to_string()).is_ok());
+        assert!(game.check_pseudo("abcdefoiwui".to_string()).is_err());
+        assert!(game.check_pseudo("abcdefoiwuifdsifjogjgoidfjiofdjhoifg".to_string()).is_err());
+    }
+
+    #[test]
+    fn check_pseudo_special_char() {
+        let game = Game::new();
+
+        assert!(game.check_pseudo("Heyy".to_string()).is_ok());
+        assert!(game.check_pseudo("hey146".to_string()).is_ok());
+        assert!(game.check_pseudo("1355".to_string()).is_ok());
+        assert!(game.check_pseudo(" 1355 ".to_string()).is_ok());
+        assert!(game.check_pseudo("Hey!".to_string()).is_err());
+        assert!(game.check_pseudo("He ee".to_string()).is_err());
+        assert!(game.check_pseudo("He_ee".to_string()).is_err());
+        assert!(game.check_pseudo("He-ee".to_string()).is_err());
     }
 }
