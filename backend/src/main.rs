@@ -68,7 +68,7 @@ fn main() {
             let client = request.accept().unwrap();
             let ip = client.peer_addr().unwrap();
 
-            println!("Connection from {}", ip);
+            println!("Connection from {} : {} players", ip, game.lock().map(|g| g.number_players()).unwrap_or(0)+1);
 
             handle_new_client(game, client)
         });

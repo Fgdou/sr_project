@@ -28,6 +28,9 @@ impl Game {
             message_count: 0,
         }
     }
+    pub fn number_players(&self) -> i32 {
+        self.clients.len() as i32
+    }
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client> {
         self.clients.iter_mut().find(|p| p.player().id() == id)
     }
@@ -193,12 +196,17 @@ impl Game {
         }
     }
     pub fn handle_message(&mut self, message: OwnedMessage, player_id: i32) {
+        if self.get_client(player_id).is_none() {
+            println!("Discard {}", player_id);
+            return
+        }
         match message {
             OwnedMessage::Close(_) => {
+                let number_players = self.clients.len();
                 let client = self.get_client(player_id).unwrap();
                 let message = OwnedMessage::Close(None);
                 let _ = client.send_raw_message(&message);
-                println!("Client {}:{} disconnected", client.player().id(), client.player().username());
+                println!("Client {}:{} disconnected : {} players", client.player().id(), client.player().username(), number_players-1);
                 return;
             }
             OwnedMessage::Ping(ping) => {
