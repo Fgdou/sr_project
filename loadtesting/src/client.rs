@@ -11,14 +11,14 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(id: i32, speed_ms: i32) -> Client {
+    pub fn new(id: i32, speed_ms: i32, host: String) -> Client {
         let failed = Arc::new(Mutex::new(false));
         let failed_copy = failed.clone();
         let average = Arc::new(Mutex::new(Vec::new()));
         let average_copy = average.clone();
         Client {
             thread: thread::spawn(move || {
-                let res = Client::run(id, failed_copy.clone(), speed_ms, average_copy);
+                let res = Client::run(id, failed_copy.clone(), speed_ms, average_copy, host.as_str());
                 if res.is_none() {
                     let _ = failed_copy.lock().map(|mut f| *f = true);
                 }
@@ -42,8 +42,8 @@ impl Client {
         let _ = self.failed.lock().map(|mut f| *f = true);
         let _ = self.thread.join();
     }
-    fn run(id: i32, failed: Arc<Mutex<bool>>, speed_ms: i32, diffs: Arc<Mutex<Vec<i64>>>) -> Option<()> {
-        let mut client = ClientBuilder::new("ws://localhost:8080")
+    fn run(id: i32, failed: Arc<Mutex<bool>>, speed_ms: i32, diffs: Arc<Mutex<Vec<i64>>>, host: &str) -> Option<()> {
+        let mut client = ClientBuilder::new(host)
             .unwrap().connect(None).ok()?;
 
         let message = OwnedMessage::Text(format!(r#"{{"Connection": "l{}"}}"#, id).to_string());

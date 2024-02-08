@@ -1,6 +1,6 @@
 mod client;
 
-use std::{thread, time::Duration};
+use std::{env, thread, time::Duration};
 
 use chrono::Local;
 use client::Client;
@@ -17,6 +17,13 @@ fn main() {
     let mut state = State::Growing(0);
     let start = Local::now();
 
+    let host = match env::args().into_iter().nth(1) {
+        Some(host) => host,
+        None => panic!("Usage: ./loadtesting <host>"),
+    };
+
+    println!("Running with host {}", host);
+
     loop {        
         let count = clients.len();
         clients.retain(|c| !c.has_failed());
@@ -30,7 +37,7 @@ fn main() {
 
         match state {
             State::Growing(_) => {
-                clients.push(Client::new(id, 500));
+                clients.push(Client::new(id, 500, host.clone()));
                 id += 1;
 
                 if average > 500 {
@@ -43,7 +50,7 @@ fn main() {
             },
             State::Stable{target, t: _} => {
                 while (clients.len() as i32) < target {
-                    clients.push(Client::new(id, 150));
+                    clients.push(Client::new(id, 150, host.clone()));
                 }
             },
         }
