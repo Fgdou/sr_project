@@ -1,6 +1,55 @@
 Report - Fabien GOARDOU
 ===
 
+# Idea
+
+![snake example](./snake-example.jpg)
+
+The idea is to create a snake game, but multiplayer. The idea is to copy the classical game :
+- a fixed size grid
+- only one apple for everyone
+- movement every time $t$
+- every apple increment the size of the player
+
+# Design
+See the [design file](./design.md) for explainig the architecture.
+
+## Backend
+Rust is usefull to have a performant backend. It is also very handy for a lot of usecase in this project, because it is  a functional programming language. Many `enum` are used to transfer data accross the front and backend.
+
+The Backend handles all the game logic. The position and the direction is stored here. It receives the command from the users for the direction, and first sends the position of everyone and the apple.
+
+## Frontend
+Typscript will be the easiest for frontend development but will still allow for type checking. I chose to not work with any frameworks, because this is a simple frontend.
+
+The frontend will draw the players sent by the server and send every keys sent by the user. It will also execute the game logic for the client, as the server will only send basic modifications of the game : 
+- change direction of the player
+- new player
+- eating an apple
+
+## Link between Frontend and Backend
+WeSocket is a common way to communication between a client and a server. It works exactly like TCP, but over HTTP. It has reliability and orderness, but is easier to implement in a web-browser.
+
+The rust crate `ts-rs` provides a compilation from the Rust objects to typescript. In that way, we can use in the frontend the exact objects defined in the backend.
+
+The messages are the followings :
+- send the entier game state via the [`Infos`](../backend/src/objects/infos.rs) object
+- send only the changes via the [`Event`](../backend/src/objects/infos_change.rs) object
+
+## Docker
+Docker allows this app to be run on any devices. I chose to put the front and backend in the same docker, to be able to run it with a really simple command : `docker run app`. It runs the front with nginx, and the back with a binary. The image is small : 110MB.
+
+The build steps are defined in the [`Dockerfile`](../Dockerfile). To avoid CORS errors, nginx is used to link the front and backend on the same url and port.
+
+## LoadTesting
+The goal of the loadtesting is to run as many users as we can until the server slows down. To do that, the code connects in websocket to the backend, sends a user position. Then, it sends periodicly a movement to stay alive. Also, it returns the average ping.
+
+The test continues until the server cannot accept more user, the ping is too high, or the time spent is greater than 1 min. When this condition is met, the test continues for 5 seconds with the same number of players.
+
+The load testing shows great results : 369 players with 522 ms ping.
+Basically, the server does not accept more players because there are no more spaces left on the board. So even with a lot of connections, the server handles everything in less than a second.
+
+
 # Challenges
 
 ## Ping reliability
@@ -40,7 +89,3 @@ Also, to reference new features or bugs, I use the [GitHub issues](https://githu
 
 # Unit test
 Some components of the `backend` have unit testing. Those tests are located in the same files as the function tested.
-
-# Load Testing
-The load testing shows great results : 369 players with 522 ms ping.
-Basically, the server does not accept more players because there are no more spaces left on the board. So even with a lot of connections, the server handles everything in less than a second.
