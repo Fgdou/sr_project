@@ -22,6 +22,10 @@ When I first tried my game with my friends, they started putting html elements i
 ## Docker build time
 The docker build time was 2 minutes for each commit and pull request. This is a bit long to wait when you want to deploy. The issue is that the build process in the [`Dockerfile`](../Dockerfile) download and build the libraries each time. The solution was to add a step between building libraries and the code, so that every step is cached. If we do a modification to the code, it will only build the new code. [This commit](https://github.com/Fgdou/sr_project/commit/f1fac72bf3ed3c4de22382c6b8e453ee7b0a98b1) divided the time by 2.
 
+# Decision of the game
+## Connection
+When 
+
 # Responsive
 The goal of the website is to be able to be played on a computer and a phone. For that, gesture and css on mobile is implemented.
 
@@ -30,4 +34,13 @@ This project is organized aroung one tool : **GitHub**. It has a `master` and `d
 1. each commit to `develop` is build and tested
 2. each merge to `master` has to pass the build and will be published as a docker image
 
+The pipeline builds every package and ensure that the full project builds before merging into `master`.
+
 Also, to reference new features or bugs, I use the [GitHub issues](https://github.com/Fgdou/sr_project/issues) of the project. This way, I only focus on one main task at a time.
+
+# Unit test
+Some components of the `backend` have unit testing. Those tests are located in the same files as the function tested.
+
+# Load Testing
+The load testing shows great results : 369 players with 522 ms ping.
+Basically, the server does not accept more players because there are no more spaces left on the board. So even with a lot of connections, the server handles everything in less than a second.

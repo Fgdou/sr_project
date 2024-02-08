@@ -31,7 +31,8 @@ Frontend -.-> Objects
 Backend -.-> Objects
 end
 
-Client -. http .-> Docker
+Client -- http --> Nginx
+LoadTesting -- Websocket --> Backend
 ```
 
 ```mermaid
@@ -88,6 +89,11 @@ The messages are the followings :
 Docker allows this app to be run on any devices. I chose to put the front and backend in the same docker, to be able to run it with a really simple command : `docker run app`. It runs the front with nginx, and the back with a binary. The image is small : 110MB.
 
 The build steps are defined in the [`Dockerfile`](../Dockerfile). To avoid CORS errors, nginx is used to link the front and backend on the same url and port.
+
+## LoadTesting
+The goal of the loadtesting is to run as many users as we can until the server slows down. To do that, the code connects in websocket to the backend, sends a user position. Then, it sends periodicly a movement to stay alive. Also, it returns the average ping.
+
+The test continues until the server cannot accept more user, the ping is too high, or the time spent is greater than 1 min. When this condition is met, the test continues for 5 seconds with the same number of players.
 
 # Dependencies
 - webassembly : run the rust code in the browser and interact with the page
