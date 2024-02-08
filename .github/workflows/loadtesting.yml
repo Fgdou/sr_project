@@ -1,4 +1,4 @@
-name: Rust
+name: LoadTesting
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./loadtesting
     steps:
     - uses: actions/checkout@v3
     - name: Cache
