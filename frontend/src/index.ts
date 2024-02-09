@@ -16,6 +16,7 @@ if(error != undefined) {
 
 let username = getUsername()
 let time = 0;
+let client_handle: Client|undefined = undefined
 
 if(username != undefined) {
   startGame(username)
@@ -23,7 +24,6 @@ if(username != undefined) {
   registerLoginCallback(startGame)
 }
 
-let client_handle: Client|undefined = undefined
 function startGame(username: string) {
   let leaderboard = new Leaderboard("leaderboard");
 
