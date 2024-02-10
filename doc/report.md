@@ -91,6 +91,38 @@ A player have to have a radius of 3 blocks aroudn to be able to spawn and play.
 The goal of the website is to be able to be played on a computer and a phone. For that, gesture and css on mobile is implemented.
 
 # Work Organization
+
+```mermaid
+flowchart LR
+
+Commit --> bbuild
+Commit --> loadtesting
+Commit --> frontend
+
+subgraph build
+direction LR
+bbuild[backend]
+frontend
+loadtesting
+bbuild --> docker
+frontend --> docker
+end
+
+bbuild ---> btest
+
+subgraph test
+direction LR
+btest[backend]
+end
+
+docker ---> git
+
+subgraph publish
+git[ghcr.io]
+end
+
+```
+
 This project is organized aroung one tool : **GitHub**. It has a `master` and `develop` branches, along with a pipeline :
 1. each commit to `develop` is build and tested
 2. each merge to `master` has to pass the build and will be published as a docker image
