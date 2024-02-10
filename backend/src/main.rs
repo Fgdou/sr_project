@@ -19,7 +19,7 @@ fn handle_loop(game: Arc<Mutex<Game>>) {
 
         let waittime = 300 - diff_ms;
 
-        println!("{}", waittime);
+        // println!("{}", waittime);
 
         if waittime > 0 {
             thread::sleep(Duration::from_millis(waittime as u64));
