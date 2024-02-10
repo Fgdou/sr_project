@@ -7,8 +7,8 @@ Report - Fabien GOARDOU
 
 The idea is to create a snake game, but multiplayer. The idea is to copy the classical game :
 - a fixed size grid
-- only one apple for everyone
-- movement every time $t$
+- only one apple for everyone (modified to 10)
+- movement every time $t = 300ms$
 - every apple increment the size of the player
 
 # Design
@@ -43,25 +43,13 @@ Docker allows this app to be run on any devices. I chose to put the front and ba
 
 The build steps are defined in the [`Dockerfile`](../Dockerfile). To avoid CORS errors, nginx is used to link the front and backend on the same url and port.
 
-## LoadTesting
-![loadtesting example](./loadtesting.gif)
-The goal of the loadtesting is to run as many users as we can until the server slows down. To do that, the code connects in websocket to the backend, sends a user position. Then, it sends periodicly a movement to stay alive. Also, it returns the average ping.
-
-The test continues until the server cannot accept more user, the ping is too high, or the time spent is greater than 1 min. When this condition is met, the test continues for 5 seconds with the same number of players.
-
-The following test is done on a game of 300 cells :
-
-![loadtesting chart](./latency.svg)
-
-The load testing shows great results : no slow down until 500 players. This is tanks to the TPS technique. There are no errors with threads or wesocket.
-
-Note that the game is only 30 cells outside of loadtesting, which means that there are only 125 spaces for the players. This means that the server can handle the load without slowing down.
-
 
 # Challenges
 
 ## Ping reliability
-The `Client` classcalculate the average time difference that the network takes. With  this estimation, it can smooth out the receiving of packet, so that the game seems smoother. You can see the implementation in the [`MessageTPSSmoother`](../frontend/src/MessageTPSSmoother.ts) class.
+Since the game has to be fully synced between all clients, the network can become a bottleneck : the server sends continuously the ticks. If the network is unreliable, then the client will experience fluctuation in the framerate.
+
+To fix this, the `Client` classcalculate the average time difference that the network takes. With  this estimation, it can smooth out the receiving of packet, so that the game seems smoother. You can see the implementation in the [`MessageTPSSmoother`](../frontend/src/MessageTPSSmoother.ts) class.
 
 $$T_{wait}(n) = T_{n} - T_{n-1} - T_{frame}$$
 $$T_{frame} = 300ms$$
@@ -69,7 +57,7 @@ $$T_{frame} = 300ms$$
 For a long time, the ping was rughtly 100ms. But it turned out that [this commit](https://github.com/Fgdou/sr_project/commit/e6f07d262497ed2079f0debe3b342bcab02b4b32) fixed it to bring it down to 30ms. The issue was that I was storing only the high ping, which added up the error over time, instead of taking the average.
 
 ## Wating time for TPS
-For the game logic to happen, the waiting time has been set to 300ms. However, is tere is a lot of players, the game logic can take more time. This is why the TPS wait time is calculated like this :
+For the game logic to happen, the waiting time has been set to 300ms. However, if there is a lot of players, the game logic can take more time. This is why the TPS wait time is calculated like this :
 $$
 t_{wait} = 300 - t_{update}
 $$
@@ -87,7 +75,20 @@ When I first tried my game with my friends, they started putting html elements i
 ## Docker build time
 The docker build time was 2 minutes for each commit and pull request. This is a bit long to wait when you want to deploy. The issue is that the build process in the [`Dockerfile`](../Dockerfile) download and build the libraries each time. The solution was to add a step between building libraries and the code, so that every step is cached. If we do a modification to the code, it will only build the new code. [This commit](https://github.com/Fgdou/sr_project/commit/f1fac72bf3ed3c4de22382c6b8e453ee7b0a98b1) divided the time by 2.
 
-# Decision of the game
+## Storing player movement
+If a player consecutivly send 2 directions, we need to store them to execute it one by one. We cannot discard an action because the playeralready send something during one tick. However, a maximum of 4 actions are stored, to not store an infinit numer of actions, which could penalize the player.
+
+## Camera movement
+![camera mouvement](./mapmovement.gif)
+
+To be able to have a bigger map, I tried to implement a camera movement around a bigger map. This way, can can have many more players.
+It could also allow the server to send only part of the game to the client.
+
+But the issue is that the framerate limited by the game is too low, and is not pleasing to the eye. I made the decision to cancel this change for it to look better.
+
+# Decisions of the game
+Every action are synchronize because of how the game works.
+
 ## Connection
 When the player connected, the game checks if there is space and if the username is correct. If so, the player is placed and allowed to play.
 
@@ -146,5 +147,21 @@ The pipeline builds every package and ensure that the full project builds before
 
 Also, to reference new features or bugs, I use the [GitHub issues](https://github.com/Fgdou/sr_project/issues) of the project. This way, I only focus on one main task at a time.
 
-# Unit test
+# Tests
+
+## Unit tests
 Some components of the `backend` have unit testing. Those tests are located in the same files as the function tested.
+
+## LoadTesting
+![loadtesting example](./loadtesting.gif)
+The goal of the loadtesting is to run as many users as we can until the server slows down. To do that, the code connects in websocket to the backend, sends a user position. Then, it sends periodicly a movement to stay alive. Also, it returns the average ping.
+
+The test continues until the server cannot accept more user, the ping is too high, or the time spent is greater than 1 min. When this condition is met, the test continues for 5 seconds with the same number of players.
+
+The following test is done on a game of 300 cells :
+
+![loadtesting chart](./latency.svg)
+
+The load testing shows great results : no slow down until 500 players. This is tanks to the TPS technique. There are no errors with threads or wesocket.
+
+Note that the game is only 30 cells outside of loadtesting, which means that there are only 125 spaces for the players. This means that the server can handle the load without slowing down.
