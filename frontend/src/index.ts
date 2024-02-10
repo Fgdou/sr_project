@@ -4,6 +4,7 @@ import { Client } from "./Client.js";
 import { Deadscreen } from "./Deadscreen.js";
 import { ErrorBanner } from "./ErrorBanner.js";
 import { Game } from "./Game.js";
+import {Diapo} from "./diapo.js"
 import { registerLoginCallback } from "./LoginWindow.js";
 import { Leaderboard } from "./leaderboard.js";
 import { getPlayer, getUsername, setupKeyboard, setupSwipes, getParams } from "./utils.js";
@@ -17,6 +18,8 @@ if(error != undefined) {
 let username = getUsername()
 let time = 0;
 let client_handle: Client|undefined = undefined
+
+new Diapo()
 
 if(username != undefined) {
   startGame(username)
