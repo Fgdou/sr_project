@@ -49,10 +49,13 @@ The goal of the loadtesting is to run as many users as we can until the server s
 
 The test continues until the server cannot accept more user, the ping is too high, or the time spent is greater than 1 min. When this condition is met, the test continues for 5 seconds with the same number of players.
 
+The following test is done on a game of 300 cells :
+
 ![loadtesting chart](./latency.svg)
 
-The load testing shows great results : 369 players with 522 ms ping.
-Basically, the server does not accept more players because there are no more spaces left on the board. So even with a lot of connections, the server handles everything in less than a second. There are no errors with threads or wesocket.
+The load testing shows great results : no slow down until 500 players. This is tanks to the TPS technique. There are no errors with threads or wesocket.
+
+Note that the game is only 30 cells outside of loadtesting, which means that there are only 125 spaces for the players. This means that the server can handle the load without slowing down.
 
 
 # Challenges
@@ -64,6 +67,14 @@ $$T_{wait}(n) = T_{n} - T_{n-1} - T_{frame}$$
 $$T_{frame} = 300ms$$
 
 For a long time, the ping was rughtly 100ms. But it turned out that [this commit](https://github.com/Fgdou/sr_project/commit/e6f07d262497ed2079f0debe3b342bcab02b4b32) fixed it to bring it down to 30ms. The issue was that I was storing only the high ping, which added up the error over time, instead of taking the average.
+
+## Wating time for TPS
+For the game logic to happen, the waiting time has been set to 300ms. However, is tere is a lot of players, the game logic can take more time. This is why the TPS wait time is calculated like this :
+$$
+t_{wait} = 300 - t_{update}
+$$
+
+We can see the clear advantage of this technique in the [loadtesting section](#loadtesting)
 
 ## Error detection
 For every message received, an id is linked to it. The `Client` module compares it, and if there is an error, ask the server to send the full information.

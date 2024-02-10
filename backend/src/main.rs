@@ -1,4 +1,5 @@
 use std::{net::TcpStream, sync::{Arc, Mutex}, thread, time::Duration};
+use chrono::Local;
 use client::Client;
 use websocket::sync::{Server, Writer};
 
@@ -11,8 +12,22 @@ mod client;
 mod game;
 
 fn handle_loop(game: Arc<Mutex<Game>>) {
+    let mut last = Local::now() - Duration::from_millis(300);
     loop {
-        thread::sleep(Duration::from_millis(300));
+        let now = Local::now();
+        let diff_ms = now.signed_duration_since(last).num_milliseconds();
+
+        let waittime = 300 - diff_ms;
+
+        println!("{}", waittime);
+
+        if waittime > 0 {
+            thread::sleep(Duration::from_millis(waittime as u64));
+        }
+
+        last = Local::now();
+
+        
         let _ = game.lock().map(|mut g| g.tick());
     }
 }
@@ -55,7 +70,7 @@ fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync:
 
 fn main() {
 
-    let game = Arc::new(Mutex::new(Game::new(Vector2::new(30, 30))));
+    let game = Arc::new(Mutex::new(Game::new(Vector2::new(300, 300))));
 
     let server = Server::bind("0.0.0.0:8080").unwrap();
 
