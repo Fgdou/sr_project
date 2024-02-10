@@ -19,6 +19,8 @@ Rust is usefull to have a performant backend. It is also very handy for a lot of
 
 The Backend handles all the game logic. The position and the direction is stored here. It receives the command from the users for the direction, and first sends the position of everyone and the apple.
 
+Every client as a single thread, plus a thread for the game logic. The game is behind an `Arc`, which act as a lock for an object.
+
 ## Frontend
 Typscript will be the easiest for frontend development but will still allow for type checking. I chose to not work with any frameworks, because this is a simple frontend.
 
@@ -42,13 +44,15 @@ Docker allows this app to be run on any devices. I chose to put the front and ba
 The build steps are defined in the [`Dockerfile`](../Dockerfile). To avoid CORS errors, nginx is used to link the front and backend on the same url and port.
 
 ## LoadTesting
-![loadtesting](./loadtesting.gif)
+![loadtesting example](./loadtesting.gif)
 The goal of the loadtesting is to run as many users as we can until the server slows down. To do that, the code connects in websocket to the backend, sends a user position. Then, it sends periodicly a movement to stay alive. Also, it returns the average ping.
 
 The test continues until the server cannot accept more user, the ping is too high, or the time spent is greater than 1 min. When this condition is met, the test continues for 5 seconds with the same number of players.
 
+![loadtesting chart](./latency.svg)
+
 The load testing shows great results : 369 players with 522 ms ping.
-Basically, the server does not accept more players because there are no more spaces left on the board. So even with a lot of connections, the server handles everything in less than a second.
+Basically, the server does not accept more players because there are no more spaces left on the board. So even with a lot of connections, the server handles everything in less than a second. There are no errors with threads or wesocket.
 
 
 # Challenges

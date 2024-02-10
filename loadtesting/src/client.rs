@@ -32,8 +32,8 @@ impl Client {
     }
     pub fn average(&self) -> Option<i64> {
         let list = self.average.lock().ok()?;
-        if list.is_empty() {
-            Some(0)
+        if list.len() < 10 {
+            None
         } else {
             Some(list.iter().sum::<i64>() / list.len() as i64)
         }
