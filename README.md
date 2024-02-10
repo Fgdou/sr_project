@@ -36,6 +36,3 @@ You can run the load testing [here](./loadtesting/)
 # Development
 - [frontend](./frontend/)
 - [backend](./backend/)
-
-# Documentation
-See the [design folder](./design/)
