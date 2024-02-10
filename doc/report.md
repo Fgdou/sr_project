@@ -78,6 +78,14 @@ The docker build time was 2 minutes for each commit and pull request. This is a 
 ## Storing player movement
 If a player consecutivly send 2 directions, we need to store them to execute it one by one. We cannot discard an action because the playeralready send something during one tick. However, a maximum of 4 actions are stored, to not store an infinit numer of actions, which could penalize the player.
 
+## Camera movement
+![camera mouvement](./mapmovement.gif)
+
+To be able to have a bigger map, I tried to implement a camera movement around a bigger map. This way, can can have many more players.
+It could also allow the server to send only part of the game to the client.
+
+But the issue is that the framerate limited by the game is too low, and is not pleasing to the eye. I made the decision to cancel this change for it to look better.
+
 # Decisions of the game
 Every action are synchronize because of how the game works.
 
