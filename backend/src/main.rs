@@ -70,7 +70,7 @@ fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync:
 
 fn main() {
 
-    let game = Arc::new(Mutex::new(Game::new(Vector2::new(300, 300))));
+    let game = Arc::new(Mutex::new(Game::new(Vector2::new(30, 30))));
 
     let server = Server::bind("0.0.0.0:8080").unwrap();
 
