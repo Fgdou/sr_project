@@ -30,12 +30,7 @@ And access the website on http://localhost
 docker compose up --build
 ```
 
-# Load testing
-You can run the load testing [here](./loadtesting/)
-
 # Development
 - [frontend](./frontend/)
 - [backend](./backend/)
-
-# Documentation
-See the [design folder](./design/)
+- [loadtesting](./loadtesting/)

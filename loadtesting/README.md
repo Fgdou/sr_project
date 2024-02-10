@@ -4,5 +4,5 @@ The program handle the load testinf of the backend. It connects clients and send
 
 # Run
 ```
-cargo run localhost:8080
+cargo run ws://localhost:8080
 ```
