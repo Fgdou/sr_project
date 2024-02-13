@@ -15,6 +15,9 @@ pub struct Game<T> {
 }
 
 impl<T: WriterInterface> Game<T> {
+    /**
+     * Create a empty game of fixed size
+     */
     pub fn new(size: Vector2) -> Self {
         Self {
             clients: Vec::new(),
@@ -26,12 +29,22 @@ impl<T: WriterInterface> Game<T> {
             message_count: 0,
         }
     }
+    /**
+     * Number of players in the game
+     */
     pub fn number_players(&self) -> i32 {
         self.clients.len() as i32
     }
+    /**
+     * Get a specific client if it exists
+     */
     pub fn get_client(&mut self, id: i32) -> Option<&mut Client<T>> {
         self.clients.iter_mut().find(|p| p.player().id() == id)
     }
+
+    /**
+     * Get the state of the game to send to clients
+     */
     pub fn get_infos(&self) -> Infos {
         let all_players: Vec<Player> = self.clients.iter()
             .map(|p| p.player().clone()).collect();
@@ -44,6 +57,10 @@ impl<T: WriterInterface> Game<T> {
             message_count: self.message_count
         }
     }
+
+    /**
+     * Add a new player
+     */
     pub fn add_client(&mut self, mut client: Client<T>) {
         let pos = self.get_free_space(3);
 
@@ -57,9 +74,17 @@ impl<T: WriterInterface> Game<T> {
             client.send_message(&MessageServer::Error("No space available".to_string()));
         }        
     }
+
+    /**
+     * Get next free id for a new player
+     */
     pub fn next_id(&self) -> i32 {
         (0..i32::MAX).into_iter().find(|i| self.clients.iter().all(|p| &p.player().id() != i)).unwrap_or(0)
     }
+
+    /**
+     * game logic for apples
+     */
     fn tick_apple(&mut self) {
         while self.apples.len() < 10 {
             let pos = Vector2::rand(&self.size);
@@ -69,18 +94,28 @@ impl<T: WriterInterface> Game<T> {
             }
         }
     }
+    /**
+     * Get all players running
+     */
     pub fn players_running(&self) -> Vec<&Player> {
         self.clients.iter()
             .map(|client| client.player())
             .filter(|player| player.state() == &PlayerState::Running)
             .collect()
     }
+    /**
+     * Get all players running
+     */
     pub fn players_running_mut(&mut self) -> Vec<&mut Player> {
         self.clients.iter_mut()
             .map(|client| client.player_mut())
             .filter(|player| player.state() == &PlayerState::Running)
             .collect()
     }
+
+    /**
+     * Game logic for player
+     */
     fn tick_players(&mut self) {
         // players
         self.clients.iter_mut().for_each(|client| {
@@ -98,6 +133,10 @@ impl<T: WriterInterface> Game<T> {
             .filter(|p1| players.iter().any(|p2| p1.intersect_player(&p2)))
             .for_each(|p| p.kill());
     }
+
+    /**
+     * game logic for player apple interactions
+     */
     fn tick_players_apples(&mut self) {
         let apples = self.apples.clone();
         self.apples = apples
@@ -116,6 +155,9 @@ impl<T: WriterInterface> Game<T> {
             })
             .collect();
     }
+    /**
+     * send changes to users
+     */
     fn tick_send_changes(&mut self) {
         self.diffs.extend(self.clients.iter_mut().map(|p| p.player_mut().diff()).flatten());
         self.clients.iter_mut().for_each(|p| {
@@ -123,6 +165,10 @@ impl<T: WriterInterface> Game<T> {
         });
         self.diffs.clear();
     }
+
+    /**
+     * Handle game logic
+     */
     pub fn tick(&mut self) {
         self.tick_apple();        
         self.tick_players();
@@ -134,10 +180,16 @@ impl<T: WriterInterface> Game<T> {
         self.last_players = self.clients.iter().map(|p| p.player().clone()).collect();
         self.message_count = self.message_count.wrapping_add(1);
     }
+    /**
+     * Remove a client from the game
+     */
     pub fn remove_client(&mut self, id: i32) {
         self.clients.retain(|p| p.player().id() != id);
         self.diffs.push(Event::RemovePlayer(id))
     }
+    /**
+     * Get a position where a new player can spawn
+     */
     pub fn get_free_space(&self, radius: i32) -> Option<Vector2> {
         (0..1000).into_iter().find_map(|_| {
             let pos = Vector2::rand(&self.size);
@@ -156,6 +208,9 @@ impl<T: WriterInterface> Game<T> {
             }
         })
     }
+    /**
+     * Get a websocket message and handle it with the right player
+     */
     fn handle_client_message(&mut self, message: MessageClient, player_id: i32) {
         match message {
             MessageClient::Connection(pseudo) => {
@@ -180,6 +235,9 @@ impl<T: WriterInterface> Game<T> {
             
         }
     }
+    /**
+     * Check if a player username is valid
+     */
     fn check_pseudo(&self, name: String) -> Result<String, String> {
         let pseudo = name.trim();
         let existing_players: Vec<String> = self.clients.iter().map(|p| p.player().username().clone()).collect();
@@ -193,6 +251,9 @@ impl<T: WriterInterface> Game<T> {
             Ok(pseudo.to_string())
         }
     }
+    /**
+     * Handle any message from a websocket
+     */
     pub fn handle_message(&mut self, message: OwnedMessage, player_id: i32) {
         if self.get_client(player_id).is_none() {
             println!("Discard {}", player_id);
