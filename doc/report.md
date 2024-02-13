@@ -165,3 +165,13 @@ The following test is done on a game of 300 cells :
 The load testing shows great results : no slow down until 500 players. This is tanks to the TPS technique. There are no errors with threads or wesocket.
 
 Note that the game is only 30 cells outside of loadtesting, which means that there are only 125 spaces for the players. This means that the server can handle the load without slowing down.
+
+# Improvements
+These are the features that can improve the game :
+
+## Dynamic map size
+The map can grow if a lot of players connects
+## Smooth camera movement
+Movement of camera but smooth. The first implementation was working but not playable
+## UI Testing
+Create different test case on the frontend, to test the components.
