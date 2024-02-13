@@ -16,6 +16,7 @@ You can access the game at https://sr.fgdou.ovh/
 # Documents
 - [Design File](./doc/design.md)
 - [Report](./doc/report.md)
+- [Oral presentation](./doc/presentation.pdf) 
 
 # Docker
 ## Run it on your server
