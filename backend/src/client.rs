@@ -10,6 +10,9 @@ pub struct Client<T> {
     next_move: Vec<Direction>,
 }
 
+/**
+ * Interface created for mocking TcpStream from websocket
+ */
 pub trait WriterInterface {
     fn send_message(&mut self, message: &OwnedMessage);
 }
@@ -21,6 +24,9 @@ impl WriterInterface for Writer<TcpStream> {
 }
 
 impl<T: WriterInterface> Client<T> {
+    /**
+     * Send a message from the server to the client
+     */
     pub fn send_message(&mut self, message: &MessageServer) {
         match message {
             MessageServer::Error(error) => println!("Error for {} : {}", self.player.username(), error),
@@ -28,6 +34,9 @@ impl<T: WriterInterface> Client<T> {
         }
         self.send_raw_message(&message.into());
     }
+    /**
+     * Create the client
+     */
     pub fn new(player: Player, writer: T) -> Self {
         Self {
             player,
@@ -35,24 +44,45 @@ impl<T: WriterInterface> Client<T> {
             next_move: Vec::new()
         }
     }
+    /**
+     * get the player
+     */
     pub fn player(&self) -> &Player {
         &self.player
     }
+    /**
+     * get the player
+     */
     pub fn player_mut(&mut self) -> &mut Player {
         &mut self.player
     }
+    /**
+     * Send a websocket message 
+     */
     pub fn send_raw_message(&mut self, message: &OwnedMessage) {
         let _ = self.writer.send_message(message);
     }
+
+    /**
+     * Get the next move stored in the stack
+     */
     fn get_next_move(&mut self) -> Option<Direction> {
         self.next_move.pop()
     }
+
+    /**
+     * store the next move sended by the client
+     */
     pub fn add_next_move(&mut self, direction: Direction) {
         if self.next_move.len() > 3 {
             self.next_move.pop();
         }
         self.next_move.insert(0, direction);
     }
+
+    /**
+     * Handle the game logic
+     */
     pub fn update(&mut self, size: &Vector2) {
         if let Some(dir) = self.get_next_move() {
             self.player.set_direction(dir.clone());

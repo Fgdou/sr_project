@@ -27,6 +27,9 @@ pub enum PlayerState {
 }
 
 impl Player {
+    /**
+     * Create a new player
+     */
     pub fn new(id: i32) -> Self {
         Self {
             direction: Direction::Up,
@@ -37,10 +40,16 @@ impl Player {
             diffs: Vec::new()
         }
     }
+    /**
+     * Set the state of the player
+     */
     fn set_state(&mut self, state: PlayerState) {
         self.diffs.push(Event::ChangeStatePlayer { state: state.clone(), id: self.id });
         self.state = state
     }
+    /**
+     * Handle the game logic
+     */
     pub fn update(&mut self, size: &Vector2) {
         match self.state {
             PlayerState::Waiting(1) => {
@@ -71,20 +80,35 @@ impl Player {
             PlayerState::Connecting => {},
         }
     }
+    /**
+     * increase the size of the player if it eats an apple
+     */
     pub fn increase(&mut self) {
         let pos = self.positions.iter().next().unwrap().clone();
         self.positions.insert(0, pos);
         self.diffs.push(Event::IncreasePlayer(self.id))
     }
+    /**
+     * Test if the head intersect with a position
+     */
     pub fn intersect(&self, pos: &Vector2) -> bool {
         self.positions.iter().any(|p| p == pos)
     }
+    /**
+     * Test if the head intersect an apple
+     */
     pub fn intersect_apple(&self, apple: &Vector2) -> bool {
         &self.head() == apple
     }
+    /**
+     * Get the head of the player
+     */
     fn head(&self) -> Vector2 {
         self.positions.last().unwrap().clone()
     }
+    /**
+     * Check if the head intersect the head of another player or our body
+     */
     pub fn intersect_player(&self, other: &Player) -> bool {
         if other == self {
             other.positions[0..other.positions.len()-1].contains(&self.head())
@@ -92,11 +116,17 @@ impl Player {
             other.intersect(&self.head())
         }
     }
+    /**
+     * Kill the player
+     */
     pub fn kill(&mut self) {
         if self.state == PlayerState::Running {
             self.set_state(PlayerState::Dead(12));
         }
     }
+    /**
+     * Change username and change state to running
+     */
     pub fn set_username(&mut self, username: String) {
         if let PlayerState::Connecting = self.state {
             self.set_state(PlayerState::Waiting(12));
@@ -104,24 +134,42 @@ impl Player {
             self.diffs.push(Event::SetUsername { id: self.id, name: username })
         }
     }
+    /**
+     * Get the id
+     */
     pub fn id(&self) -> i32 {
         self.id
     }
+    /**
+     * Change the direction of the player
+     */
     pub fn set_direction(&mut self, direction: Direction) {
         if self.direction.reverse() != direction {
             self.diffs.push(Event::MovePlayer { dir: direction.clone(), id: self.id });
             self.direction = direction
         }
     }
+    /**
+     * Increase the size of the player by adding a specific position
+     */
     pub fn add_position(&mut self, position: Vector2) {
         self.positions.insert(0, position)
     }
+    /**
+     * Get the state
+     */
     pub fn state(&self) -> &PlayerState {
         &self.state
     }
+    /**
+     * Get the username
+     */
     pub fn username(&self) -> &String {
         &self.username
     }
+    /**
+     * Get the changes to send to the client, and clear the list
+     */
     pub fn diff(&mut self) -> Vec<Event> {
         let list = self.diffs.to_owned();
         self.diffs = Vec::new();

@@ -11,6 +11,9 @@ mod objects;
 mod client;
 mod game;
 
+/**
+ * main thread that handle the game loop
+ */
 fn handle_loop(game: Arc<Mutex<Game>>) {
     let mut last = Local::now() - Duration::from_millis(300);
     loop {
@@ -32,9 +35,13 @@ fn handle_loop(game: Arc<Mutex<Game>>) {
     }
 }
 
+/**
+ * Handle a new player connection
+ */
 fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync::Client<TcpStream>) {
     let (mut receiver, sender) = ws_client.split().unwrap();
 
+    // Get an id for the player
     let id = {
         match game.lock() {
             Ok(mut game) => {
@@ -54,6 +61,7 @@ fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync:
     };
 
 
+    // Loop waiting for messages
     for message in receiver.incoming_messages() {
         if let Ok(message) = message {
             // message
@@ -81,6 +89,8 @@ fn main() {
 
     for request in server.filter_map(Result::ok) {
         let game = game.clone();
+
+        // create thread for the client
         thread::spawn(move || {
             let client = request.accept().unwrap();
             let ip = client.peer_addr().unwrap();

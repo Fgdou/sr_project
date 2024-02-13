@@ -14,6 +14,9 @@ pub enum MessageServer {
 }
 
 impl Into<OwnedMessage> for &MessageServer {
+    /**
+     * Transform the message into JSON
+     */
     fn into(self) -> OwnedMessage {
         OwnedMessage::Text(serde_json::to_string(self).unwrap())
     }
