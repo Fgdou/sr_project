@@ -1,3 +1,4 @@
+import { Event } from "../../backend/bindings/Event";
 import { Infos } from "../../backend/bindings/Infos";
 import {Canvas} from "./Canvas.js"
 import { Client } from "./Client.js";
@@ -38,18 +39,21 @@ function startGame(username: string) {
   let divScore = document.getElementById("score") as HTMLSpanElement
 
   let game: Game|undefined = undefined;
-  let client = new Client(infos => {
+
+  let info_callback = (infos: Infos) => {
     game = new Game(infos)
     draw(infos)
-  }, change => {
+  };
+  let change_callback = (change: Event[]) => {
     change.forEach(c => game?.update(c))
     game?.tick()
-
 
     let infos = game?.getInfos()
     if(infos != undefined)
       draw(infos)
-  }, username);
+  }
+
+  let client = new Client(info_callback, change_callback, username, leaderboard);
   client_handle = client
 
   document.cookie = `username=${username}`
@@ -114,9 +118,6 @@ function startGame(username: string) {
       }
     }
   
-    // draw leaderboard
-    leaderboard.update(message, client.getId())
-
     // test dead
     if(player != undefined && player.state instanceof Object && "Dead" in player.state && player.state.Dead == 12) {
       new Deadscreen(player, message.players, time/1000)

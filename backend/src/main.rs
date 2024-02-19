@@ -10,6 +10,7 @@ type Game = game::Game<Writer<TcpStream>>;
 mod objects;
 mod client;
 mod game;
+mod storage;
 
 /**
  * main thread that handle the game loop

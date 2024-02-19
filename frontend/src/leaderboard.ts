@@ -7,16 +7,16 @@ export class Leaderboard {
         this.div = document.getElementById(id) as HTMLTableElement
     }
 
-    update(message: Infos, player_id: number|undefined) {
+    update(leaderboard: Array<[string, number]>, player_name: string|undefined) {
         this.div.textContent = ""
-        message.players.sort((a, b) => b.positions.length - a.positions.length).map(p => {
+        leaderboard.sort((a, b) => b[1] - a[1]).map(([username, score]) => {
             let tr = this.div.insertRow()
             let td1 = tr.insertCell()
             let td2 = tr.insertCell()
-            td1.textContent = p.positions.length.toString()
-            td2.textContent = p.username
+            td1.textContent = score.toString()
+            td2.textContent = username
 
-            if(p.id == player_id) {
+            if(player_name == username) {
                 tr.classList.add("active")
             }
         })

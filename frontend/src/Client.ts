@@ -4,6 +4,7 @@ import { MessageClient } from "../../backend/bindings/MessageClient.js";
 import { MessageServer } from "../../backend/bindings/MessageServer.js";
 import { ErrorBanner } from "./ErrorBanner.js";
 import { MessageTPSSmoother } from "./MessageTPSSmoother.js";
+import { Leaderboard } from "./leaderboard.js";
 import { getSocket } from "./utils.js";
 
 let protocol = (location.protocol == "https:") ? "wss" : "ws"
@@ -18,7 +19,13 @@ export class Client {
     private messageHandler: MessageTPSSmoother<MessageServer>
     private count = 0;
 
-    constructor(callbackInfos: (message: Infos) => void, callbackChanges: (Message: Event[]) => void, username: string) {
+    constructor(
+        callbackInfos: (message: Infos) => void, 
+        callbackChanges: (Message: Event[]) => void, 
+        username: string, 
+        leaderboard: Leaderboard
+    ) {
+
         this.messageHandler = new MessageTPSSmoother(infos => {
             if ('ChangeInfos' in infos){
                 let count = infos.ChangeInfos.count
@@ -53,6 +60,8 @@ export class Client {
                         }
                         if ("SetId" in message)
                             this.id = message["SetId"]
+                        if ("Leaderboard" in message)
+                            leaderboard.update(message.Leaderboard, username)
                         if ("Error" in message)
                             this.handleError(message.Error)
                     });
