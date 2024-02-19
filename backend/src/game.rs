@@ -75,6 +75,7 @@ impl<T: WriterInterface> Game<T> {
             (0..3).for_each(|i| client.player_mut().add_position(pos.clone() + Vector2::new(0, i)));
 
             client.send_message(&MessageServer::Infos(self.get_infos()));
+            client.send_message(&MessageServer::Leaderboard(self.get_leaderboard()));
             self.diffs.push(Event::AddPlayer(client.player().clone()));
             self.clients.push(client);
         } else {
@@ -173,10 +174,17 @@ impl<T: WriterInterface> Game<T> {
         self.diffs.clear();
     }
 
+    fn get_leaderboard(&self) -> Vec<(String, i32)> {
+        let mut list = self.leaderboard.iter().map(|(username, score)| (username.clone(), score.clone())).collect::<Vec<_>>();
+        list.sort_by_key(|e| -e.1);
+
+        list[0..5].iter().map(|e| e.clone()).collect()
+    }
+
     fn tick_leaderboard(&mut self) {
         let scores: Vec<(String, i32)> = self.players_running().iter()
-            .map(|p| (p.username().clone(), p.score()))
-            .collect();
+        .map(|p| (p.username().clone(), p.score()))
+        .collect();
 
         scores.into_iter().for_each(|(username, score)| {
                 match self.leaderboard.get_mut(&username) {
@@ -192,7 +200,7 @@ impl<T: WriterInterface> Game<T> {
             });
 
         let message = MessageServer::Leaderboard(
-            self.leaderboard.iter().map(|(username, score)| (username.clone(), score.clone())).collect()
+            self.get_leaderboard()
         );
 
         self.clients.iter_mut().for_each(|c| {
@@ -210,7 +218,7 @@ impl<T: WriterInterface> Game<T> {
         self.tick_send_changes();
 
         if self.count_leaderboard <= 0 {
-            self.count_leaderboard = 10;
+            self.count_leaderboard = 60;
             self.tick_leaderboard();
         }
         self.count_leaderboard -= 1;
