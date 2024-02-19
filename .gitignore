@@ -6,4 +6,4 @@
 **/bindings
 **/node_modules
 **/dist
-backend/leaderboard
+backend/leaderboard/leaderboard.json
