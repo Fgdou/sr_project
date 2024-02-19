@@ -5,6 +5,7 @@ RUN mkdir src && echo "fn main() { println!(\"Hello world\") }" > src/main.rs
 RUN cargo fetch
 RUN cargo build --release
 RUN rm src/main.rs
+RUN mkdir leaderboard
 COPY ./backend/src/ ./src/
 RUN touch src/main.rs
 RUN cargo test --release && cargo build --release
