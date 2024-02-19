@@ -176,6 +176,10 @@ impl Player {
         return list
     }
 
+    pub fn score(&self) -> i32 {
+        self.positions.len() as i32
+    }
+
 
 }
 

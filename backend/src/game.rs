@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use websocket::OwnedMessage;
 
-use crate::{client::{self, WriterInterface}, objects::{Event, Infos, MessageClient, MessageServer, Player, PlayerState, Vector2}};
+use crate::{client::{self, WriterInterface}, objects::{Event, Infos, MessageClient, MessageServer, Player, PlayerState, Vector2}, storage::Storage};
 
 type Client<T> = client::Client<T>;
 
@@ -12,6 +14,8 @@ pub struct Game<T> {
     last_apples: Vec<Vector2>,
     diffs: Vec<Event>,
     message_count: u32,
+    leaderboard: Storage<HashMap<String, i32>>,
+    count_leaderboard: i32,
 }
 
 impl<T: WriterInterface> Game<T> {
@@ -27,6 +31,9 @@ impl<T: WriterInterface> Game<T> {
             last_players: Vec::new(),
             diffs: Vec::new(),
             message_count: 0,
+            leaderboard: Storage::new("leaderboard/leaderboard.json".to_string(), Default::default())
+                .expect("Fail to load leaderboard"),
+            count_leaderboard: 0
         }
     }
     /**
@@ -166,6 +173,33 @@ impl<T: WriterInterface> Game<T> {
         self.diffs.clear();
     }
 
+    fn tick_leaderboard(&mut self) {
+        let scores: Vec<(String, i32)> = self.players_running().iter()
+            .map(|p| (p.username().clone(), p.score()))
+            .collect();
+
+        scores.into_iter().for_each(|(username, score)| {
+                match self.leaderboard.get_mut(&username) {
+                    Some(n) => {
+                        if score > *n {
+                            *n = score
+                        }
+                    },
+                    None => {
+                        self.leaderboard.insert(username, score);
+                    },
+                };
+            });
+
+        let message = MessageServer::Leaderboard(
+            self.leaderboard.iter().map(|(username, score)| (username.clone(), score.clone())).collect()
+        );
+
+        self.clients.iter_mut().for_each(|c| {
+            c.send_message(&message)
+        })
+    }
+
     /**
      * Handle game logic
      */
@@ -173,7 +207,13 @@ impl<T: WriterInterface> Game<T> {
         self.tick_apple();        
         self.tick_players();
         self.tick_players_apples();
-        self.tick_send_changes();        
+        self.tick_send_changes();
+
+        if self.count_leaderboard <= 0 {
+            self.count_leaderboard = 10;
+            self.tick_leaderboard();
+        }
+        self.count_leaderboard -= 1;
 
         // update history
         self.last_apples = self.apples.clone();

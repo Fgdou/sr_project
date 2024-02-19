@@ -52,6 +52,8 @@ canvas, .canvas {
 .leaderboard {
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 .username_logout {
     display: flex;

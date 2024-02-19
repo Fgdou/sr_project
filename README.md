@@ -26,6 +26,11 @@ docker run -p 80:80 ghcr.io/fgdou/sr_project:master
 ```
 And access the website on http://localhost
 
+## Persistent leaderboard storage
+The file is located in `/app/leaderboard.json`
+
+You can setup the persistent storage in the `compose.yml` file or by adding `-p /path/to/dir:/app/leaderboard` to the `docker run` command.
+
 ## Build the project and Run
 ```sh
 docker compose up --build

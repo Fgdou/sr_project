@@ -4,3 +4,5 @@ services:
     ports:
       - 80:80
     image: ghcr.io/fgdou/sr_project:master
+    volumes:
+      # - /path/to/dir:/app/leaderboard
