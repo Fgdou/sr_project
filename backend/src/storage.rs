@@ -80,19 +80,28 @@ impl<T> Drop for Storage<T>
 #[cfg(test)]
 
 mod tests {
+    use rand::{distributions::Alphanumeric, Rng};
+
     use super::Storage;
 
-    const PATH: &str = "test.json";
+    fn get_name() -> String {
+        let random = rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(10)
+            .map(char::from)
+            .collect::<String>();
+        "test".to_string() + random.as_str() + ".json"
+    }
 
     #[test]
     fn storage_empty() {
-        let storage = Storage::new(PATH.to_string(), 1).unwrap();
+        let storage = Storage::new(get_name(), 1).unwrap();
         storage.delete();
     }
 
     #[test]
     fn storage_without_writing(){
-        let mut storage = Storage::new(PATH.to_string(), 1).unwrap();
+        let mut storage = Storage::new(get_name(), 1).unwrap();
         *storage = 10;
         assert_eq!(10, *storage);
         storage.delete();
@@ -100,7 +109,7 @@ mod tests {
 
     #[test]
     fn storage_default(){
-        let storage = Storage::new(PATH.to_string(), 1).unwrap();
+        let storage = Storage::new(get_name(), 1).unwrap();
         assert_eq!(1, *storage);
         storage.delete();
     }
@@ -112,12 +121,13 @@ mod tests {
 
     #[test]
     fn storage_persistent() {
+        let filename = get_name();
         {
-            let mut storage = Storage::new(PATH.to_string(), 1).unwrap();
+            let mut storage = Storage::new(filename.clone(), 1).unwrap();
             *storage = 18;
         }
         {
-            let storage = Storage::new(PATH.to_string(), 1).unwrap();
+            let storage = Storage::new(filename, 1).unwrap();
             assert_eq!(18, *storage);
             storage.delete();
         }
@@ -125,13 +135,14 @@ mod tests {
 
     #[test]
     fn storage_delete() {
+        let filename = get_name();
         {
-            let mut storage = Storage::new(PATH.to_string(), 1).unwrap();
+            let mut storage = Storage::new(filename.clone(), 1).unwrap();
             *storage = 18;
             storage.delete();
         }
         {
-            let storage = Storage::new(PATH.to_string(), 1).unwrap();
+            let storage = Storage::new(filename, 1).unwrap();
             assert_eq!(1, *storage);
             storage.delete();
         }
