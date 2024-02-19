@@ -10,7 +10,8 @@ pub enum MessageServer {
     Error(String),
     Infos(Infos),
     ChangeInfos{events: Vec<Event>, count: u32},
-    SetId(i32)
+    SetId(i32),
+    Leaderboard(Vec<(String, i32)>)
 }
 
 impl Into<OwnedMessage> for &MessageServer {
