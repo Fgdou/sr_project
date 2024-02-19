@@ -183,7 +183,13 @@ impl<T: WriterInterface> Game<T> {
 
     fn update_leaderboard(&mut self, player: i32) {
 
-        let player = self.get_client(player).unwrap().player();
+        let player = self.get_client(player);
+
+        if player.is_none() {
+            return
+        }
+
+        let player = player.unwrap().player();
         let username = player.username().clone();
         let score = player.score();
 
