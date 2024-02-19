@@ -28,5 +28,6 @@ RUN apt update && apt install -y openssl nginx
 COPY ./docker-start.sh .
 COPY nginx.conf /etc/nginx/sites-enabled/default
 COPY --from=builder_backend /app/target/release/backend ./backend
+RUN mkdir leaderboard
 COPY --from=builder_frontend /app/frontend/dist ./frontend
 CMD [ "sh", "/app/docker-start.sh" ]
