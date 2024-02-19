@@ -15,7 +15,6 @@ pub struct Game<T> {
     diffs: Vec<Event>,
     message_count: u32,
     leaderboard: Storage<HashMap<String, i32>>,
-    count_leaderboard: i32,
 }
 
 impl<T: WriterInterface> Game<T> {
@@ -33,7 +32,6 @@ impl<T: WriterInterface> Game<T> {
             message_count: 0,
             leaderboard: Storage::new("leaderboard/leaderboard.json".to_string(), Default::default())
                 .expect("Fail to load leaderboard"),
-            count_leaderboard: 0
         }
     }
     /**
@@ -178,26 +176,33 @@ impl<T: WriterInterface> Game<T> {
         let mut list = self.leaderboard.iter().map(|(username, score)| (username.clone(), score.clone())).collect::<Vec<_>>();
         list.sort_by_key(|e| -e.1);
 
-        list[0..5].iter().map(|e| e.clone()).collect()
+        list.truncate(5);
+
+        list
     }
 
-    fn tick_leaderboard(&mut self) {
-        let scores: Vec<(String, i32)> = self.players_running().iter()
-        .map(|p| (p.username().clone(), p.score()))
-        .collect();
+    fn update_leaderboard(&mut self, player: i32) {
 
-        scores.into_iter().for_each(|(username, score)| {
-                match self.leaderboard.get_mut(&username) {
-                    Some(n) => {
-                        if score > *n {
-                            *n = score
-                        }
-                    },
-                    None => {
-                        self.leaderboard.insert(username, score);
-                    },
-                };
-            });
+        let player = self.get_client(player).unwrap().player();
+        let username = player.username().clone();
+        let score = player.score();
+
+        if username.is_empty() {
+            return
+        }
+
+        match self.leaderboard.get_mut(&username) {
+            Some(n) => {
+                if score > *n {
+                    *n = score
+                }
+            },
+            None => {
+                self.leaderboard.insert(username, score);
+            },
+        };
+
+        self.leaderboard.write();
 
         let message = MessageServer::Leaderboard(
             self.get_leaderboard()
@@ -217,12 +222,6 @@ impl<T: WriterInterface> Game<T> {
         self.tick_players_apples();
         self.tick_send_changes();
 
-        if self.count_leaderboard <= 0 {
-            self.count_leaderboard = 60;
-            self.tick_leaderboard();
-        }
-        self.count_leaderboard -= 1;
-
         // update history
         self.last_apples = self.apples.clone();
         self.last_players = self.clients.iter().map(|p| p.player().clone()).collect();
@@ -232,6 +231,7 @@ impl<T: WriterInterface> Game<T> {
      * Remove a client from the game
      */
     pub fn remove_client(&mut self, id: i32) {
+        self.update_leaderboard(id);
         self.clients.retain(|p| p.player().id() != id);
         self.diffs.push(Event::RemovePlayer(id))
     }
