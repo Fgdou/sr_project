@@ -31,7 +31,7 @@ impl<T: WriterInterface> Game<T> {
             last_players: Vec::new(),
             diffs: Vec::new(),
             message_count: 0,
-            leaderboard: Storage::new("leaderboard.json".to_string(), Default::default())
+            leaderboard: Storage::new("leaderboard/leaderboard.json".to_string(), Default::default())
                 .expect("Fail to load leaderboard"),
             count_leaderboard: 0
         }

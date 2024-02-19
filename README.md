@@ -29,9 +29,7 @@ And access the website on http://localhost
 ## Persistent leaderboard storage
 The file is located in `/app/leaderboard.json`
 
-You have to create the file before linking it with docker, because docker will create a folder and it will not work with the app.
-
-You can setup the persistent storage in the `compose.yml` file or by adding `-p /path/to/json:/app/leaderboard` to the `docker run` command.
+You can setup the persistent storage in the `compose.yml` file or by adding `-p /path/to/dir:/app/leaderboard` to the `docker run` command.
 
 ## Build the project and Run
 ```sh
