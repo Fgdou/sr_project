@@ -1,7 +1,7 @@
 use std::{net::TcpStream, sync::{Arc, Mutex}, thread, time::Duration};
 use chrono::Local;
 use client::Client;
-use websocket::sync::{Server, Writer};
+use websocket::{sync::{Server, Writer}, OwnedMessage};
 
 use crate::objects::{MessageServer, Player, Vector2};
 
@@ -40,7 +40,7 @@ fn handle_loop(game: Arc<Mutex<Game>>) {
  * Handle a new player connection
  */
 fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync::Client<TcpStream>) {
-    let (mut receiver, sender) = ws_client.split().unwrap();
+    let (mut receiver, mut sender) = ws_client.split().unwrap();
 
     // Get an id for the player
     let id = {
@@ -55,6 +55,9 @@ fn handle_new_client(game: Arc<Mutex<Game>>, ws_client: websocket::client::sync:
             },
             Err(_) => {
                 println!("Error while getting an id");
+                let message = &MessageServer::Error("Error while getting an id".to_string());
+
+                let _ = sender.send_message(&OwnedMessage::Text(serde_json::to_string(message).unwrap()));
                 let _ = sender.shutdown();
                 return;  
             },

@@ -27,7 +27,7 @@ impl<T> Storage<T>
         })
     }
 
-    fn write(&self) -> Option<()> {
+    pub fn write(&self) -> Option<()> {
         let mut file = File::create(&self.file).ok()?;
 
         let str = serde_json::to_string(&self.obj).ok()?;
